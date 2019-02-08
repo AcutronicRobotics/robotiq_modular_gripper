@@ -376,7 +376,7 @@ namespace gazebo
 
     msg_sim_3d.model.resize(pos);
     ifs.seekg(0, std::ios::beg);
-    ifs.read(&msg_sim_3d.model[0], pos);
+    ifs.read((char *)&msg_sim_3d.model[0], pos);
     ifs.close();
   }
 
