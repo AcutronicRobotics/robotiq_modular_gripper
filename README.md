@@ -75,3 +75,44 @@ As they are key to highly flexible automation tasks, we have enhanced three diff
        <td>30 to 250 mm/s</td>
    </tr>
 </table>
+
+# Install
+
+## Install ROS 2.0
+
+Install ROS 2.0 following the official instructions: [source](https://index.ros.org/doc/ros2/Linux-Development-Setup/) [debian packages](https://index.ros.org/doc/ros2/Linux-Install-Debians/).
+
+## Create mara ROS 2.0 workspace
+Create a ROS workspace, for example:
+
+```bash
+mkdir -p ~/ros2_mara_ws/src
+cd ~/ros2_mara_ws
+sudo apt install -y python3-vcstool python3-numpy
+wget https://raw.githubusercontent.com/acutronicrobotics/MARA/master/mara-ros2.repos
+vcs import src < mara-ros2.repos
+```
+
+Generate HRIM dependencies:
+
+```bash
+pip3 install lxml
+cd ~/ros2_mara_ws/src/HRIM
+python3 hrim.py generate models/actuator/servo/servo.xml
+python3 hrim.py generate models/actuator/gripper/gripper.xml
+```
+
+## Compile
+
+**Optional note**: If you want to use MoveIT! you need to source ROS 1.0 environment variables. Typically, if you have installed ROS `Kinetic`, you need to source the following file:
+
+```bash
+source /opt/ros/kinetic/setup.bash
+```
+
+Right now you can compile the code:
+
+```bash
+source /opt/ros/crystal/setup.bash
+cd ~/ros2_mara_ws && colcon build --merge-install
+```
