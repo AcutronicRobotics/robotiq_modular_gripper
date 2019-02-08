@@ -1,5 +1,8 @@
 # Robotiq modular gripper
 
+ - [Install](#install)
+ - [Launch](#launch)
+
 ## Industrial and modular end-of-arm tooling
 
 <a href="http://www.acutronicrobotics.com"><img src="https://acutronicrobotics.com/products/modular-grippers/images-v2/v2_Robotiq_gripper_2-08.jpg.pagespeed.ce.2tQN4GJ5PS.jpg" align="right" hspace="8" vspace="2" width="200"></a>
@@ -115,4 +118,24 @@ Right now you can compile the code:
 ```bash
 source /opt/ros/crystal/setup.bash
 cd ~/ros2_mara_ws && colcon build --merge-install
+```
+
+# Launch
+
+### S85 ( Robotiq 2f-85 )
+
+```
+ros2 launch robotiq_gazebo robotiq_85.launch.py
+```
+
+### S140 ( Robotiq 2f-140 )
+
+```
+ros2 launch robotiq_gazebo robotiq_140.launch.py
+```
+
+### S50 ( Robotiq Hand-E )
+
+```
+ros2 launch robotiq_gazebo robotiq_hande.launch.py
 ```
