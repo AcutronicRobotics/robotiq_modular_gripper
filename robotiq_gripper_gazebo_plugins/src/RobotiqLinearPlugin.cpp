@@ -243,10 +243,6 @@ namespace gazebo
 
     srv_ = ros_node_->create_service<hrim_actuator_gripper_srvs::srv::ControlFinger>(node_name + "/goal", cb_fingercontrol_function);
 
-    std::string topic_name_specs = std::string(node_name) + "/specs";
-    specs_pub = ros_node_->create_publisher<hrim_actuator_gripper_msgs::msg::SpecsFingerGripper>(topic_name_specs,
-                  rmw_qos_profile_default);
-
     std::string topic_name_gripper_finger_state = std::string(node_name) + "/state_finger_gripper";
     gripper_finger_state_pub = ros_node_->create_publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>(topic_name_gripper_finger_state,
                   rmw_qos_profile_default);
@@ -292,7 +288,7 @@ namespace gazebo
   void RobotiqHandLinearPlugin::createGenericTopics(std::string node_name)
   {
     // create info topic
-    std::string topic_name_info = std::string(node_name) + "/id";
+    std::string service_name_id = std::string(node_name) + "/id";
 
     // Creating status topic name
     std::string topic_name_status = std::string(node_name) + "/status";
@@ -301,15 +297,20 @@ namespace gazebo
     std::string topic_name_power = std::string(node_name) + "/power";
 
     // Creating sim topic name
-    std::string topic_name_sim3d = std::string(node_name) + "/module_3d";
-    std::string topic_name_simurdf = std::string(node_name) + "/module_urdf";
-    std::string topic_name_specs = std::string(node_name) + "/specs";
-    std::string topic_name_specs_comm = std::string(node_name) + "/specs_comm";
+    std::string service_name_sim3d = std::string(node_name) + "/module_3d";
+    std::string service_name_simurdf = std::string(node_name) + "/module_urdf";
+    std::string service_name_specs = std::string(node_name) + "/specs";
+    std::string service_name_specs_comm = std::string(node_name) + "/specs_comm";
     std::string topic_name_state_comm = std::string(node_name) + "/state_comm";
 
-    info_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::ID>(topic_name_info);
 
-    RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_info.c_str());
+    std::function<void( std::shared_ptr<rmw_request_id_t>,
+                        const std::shared_ptr<hrim_generic_srvs::srv::ID::Request>,
+                        std::shared_ptr<hrim_generic_srvs::srv::ID::Response>)> cb_id_function = std::bind(
+          &RobotiqHandLinearPlugin::IDService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+
+    id_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::ID>(service_name_id, cb_id_function);
+    RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_id.c_str());
 
     power_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::Power>(topic_name_power);
     RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_power.c_str());
@@ -317,104 +318,66 @@ namespace gazebo
     status_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::Status>(topic_name_status);
     RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_status.c_str());
 
-    rmw_qos_profile_t custom_qos_profile;
-    custom_qos_profile.depth = 1;
-    custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_ALL;
-    custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
-    custom_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL;
+    std::function<void( std::shared_ptr<rmw_request_id_t>,
+                        const std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Request>,
+                        std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Response>)> cb_SimulationURDF_function = std::bind(
+          &RobotiqHandLinearPlugin::URDFService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+    sim_urdf_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::SimulationURDF>(service_name_simurdf, cb_SimulationURDF_function);
+    RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_simurdf.c_str());
 
-    sim3d_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::Simulation3D>(topic_name_sim3d,
-                  custom_qos_profile);
-    RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_sim3d.c_str());
+    std::function<void( std::shared_ptr<rmw_request_id_t>,
+                        const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request>,
+                        std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response>)> cb_Simulation3D_function = std::bind(
+          &RobotiqHandLinearPlugin::Sim3DService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+    sim_3d_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::Simulation3D>(service_name_simurdf, cb_Simulation3D_function);
+    RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_simurdf.c_str());
 
-    publish3DModels();
-
-    sim_urdf_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::SimulationURDF>(topic_name_simurdf,
-                  custom_qos_profile);
-    RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_simurdf.c_str());
-
-    specs_pub = ros_node_->create_publisher<hrim_actuator_gripper_msgs::msg::SpecsFingerGripper>(topic_name_specs,
-                  rmw_qos_profile_default);
-    RCLCPP_INFO(ros_node_->get_logger(), "creating %s publisher topic", topic_name_specs.c_str());
+    std::function<void( const std::shared_ptr<rmw_request_id_t>,
+                        const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request>,
+                        std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Response>)> cb_SpecsFingerGripper_function = std::bind(
+          &RobotiqHandLinearPlugin::SpecsFingerGripperService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+    specs_srv_ = ros_node_->create_service<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper>(service_name_specs, cb_SpecsFingerGripper_function);
 
     state_comm_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::StateCommunication>(topic_name_state_comm,
                   rmw_qos_profile_default);
     RCLCPP_ERROR(ros_node_->get_logger(), "creating %s publisher topic", topic_name_state_comm.c_str());
 
-    specs_comm_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::SpecsCommunication>(topic_name_specs_comm,
-                  rmw_qos_profile_default);
-    RCLCPP_ERROR(ros_node_->get_logger(), "creating %s publisher topic", topic_name_specs_comm.c_str());
+    std::function<void( std::shared_ptr<rmw_request_id_t>,
+                        const std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Request>,
+                        std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Response>)> cb_SpecsCommunication_function = std::bind(
+          &RobotiqHandLinearPlugin::SpecsCommunicationService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+    specs_comm_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::SpecsCommunication>(service_name_specs_comm, cb_SpecsCommunication_function);
 
-    timer_info_ = ros_node_->create_wall_timer(
-        1s, std::bind(&RobotiqHandLinearPlugin::timer_info_msgs, this));
     timer_status_ = ros_node_->create_wall_timer(
         1s, std::bind(&RobotiqHandLinearPlugin::timer_status_msgs, this));
     timer_power_ = ros_node_->create_wall_timer(
         1s, std::bind(&RobotiqHandLinearPlugin::timer_power_msgs, this));
-    timer_specs_ = ros_node_->create_wall_timer(
-        1s, std::bind(&RobotiqHandLinearPlugin::timer_specs_msgs, this));
     timer_comm_ = ros_node_->create_wall_timer(
         1s, std::bind(&RobotiqHandLinearPlugin::timer_comm_msgs, this));
     timer_gripper_status_ = ros_node_->create_wall_timer(
         100ms, std::bind(&RobotiqHandLinearPlugin::timer_gripper_status_msgs, this));
   }
 
-  void RobotiqHandLinearPlugin::readfullFile(std::string file_to_read, hrim_generic_msgs::msg::Simulation3D& msg_sim_3d)
-  {
-    std::string robotiq_140_description_folder = ament_index_cpp::get_package_share_directory("robotiq_140_gripper_description");
-
-    gzmsg << "readfullFile " << robotiq_140_description_folder + file_to_read << std::endl;
-
-    std::ifstream ifs(robotiq_140_description_folder + file_to_read, std::ios::binary|std::ios::ate);
-
-    if(!ifs.is_open()){
-      gzmsg << "Error reading file " << robotiq_140_description_folder + file_to_read << std::endl;
-      return;
-    }
-
-    std::ifstream::pos_type pos = ifs.tellg();
-
-    msg_sim_3d.model.resize(pos);
-    ifs.seekg(0, std::ios::beg);
-    ifs.read((char *)&msg_sim_3d.model[0], pos);
-    ifs.close();
-  }
-
-  void RobotiqHandLinearPlugin::publish3DModels()
-  {
-    hrim_generic_msgs::msg::Simulation3D msg_sim_3d;
-    gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
-    msg_sim_3d.header.stamp.sec = cur_time.sec;
-    msg_sim_3d.header.stamp.nanosec = cur_time.nsec;
-
-    readfullFile("/meshes/GRIPPER_base_axis.stl", msg_sim_3d);
-    sim3d_pub->publish(msg_sim_3d);
-
-    readfullFile("/meshes/robotiq_arg2f_140_inner_finger.stl", msg_sim_3d);
-    sim3d_pub->publish(msg_sim_3d);
-
-    readfullFile("/meshes/robotiq_arg2f_140_inner_knuckle.stl", msg_sim_3d);
-    sim3d_pub->publish(msg_sim_3d);
-
-    readfullFile("/meshes/robotiq_arg2f_140_outer_finger.stl", msg_sim_3d);
-    sim3d_pub->publish(msg_sim_3d);
-
-    readfullFile("/meshes/robotiq_arg2f_140_outer_knuckle.stl", msg_sim_3d);
-    sim3d_pub->publish(msg_sim_3d);
-  }
-
-  void RobotiqHandLinearPlugin::timer_info_msgs()
-  {
-    hrim_generic_msgs::msg::ID info_msg;
-    gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
-    info_msg.header.stamp.sec = cur_time.sec;
-    info_msg.header.stamp.nanosec = cur_time.nsec;
-    info_msg.device_kind_id = hrim_generic_msgs::msg::ID::HRIM_SENSOR;
-    info_msg.hros_version = "Ardent";
-    info_msg.hrim_version = "Anboto";
-    info_pub->publish(info_msg);
-  }
-
+  // void RobotiqHandLinearPlugin::readfullFile(std::string file_to_read, hrim_generic_srvs::srv::Simulation3D& msg_sim_3d)
+  // {
+  //   std::string robotiq_140_description_folder = ament_index_cpp::get_package_share_directory("robotiq_140_gripper_description");
+  //
+  //   gzmsg << "readfullFile " << robotiq_140_description_folder + file_to_read << std::endl;
+  //
+  //   std::ifstream ifs(robotiq_140_description_folder + file_to_read, std::ios::binary|std::ios::ate);
+  //
+  //   if(!ifs.is_open()){
+  //     gzmsg << "Error reading file " << robotiq_140_description_folder + file_to_read << std::endl;
+  //     return;
+  //   }
+  //
+  //   std::ifstream::pos_type pos = ifs.tellg();
+  //
+  //   msg_sim_3d.model.resize(pos);
+  //   ifs.seekg(0, std::ios::beg);
+  //   ifs.read((char *)&msg_sim_3d.model[0], pos);
+  //   ifs.close();
+  // }
   void RobotiqHandLinearPlugin::timer_power_msgs()
   {
     hrim_generic_msgs::msg::Power power_msg;
@@ -453,30 +416,30 @@ namespace gazebo
     state_gripper_msg.on_off = true;
     gripper_state_pub->publish(state_gripper_msg);
   }
-
-  void RobotiqHandLinearPlugin::timer_specs_msgs()
-  {
-    hrim_actuator_gripper_msgs::msg::SpecsFingerGripper specs_msg;
-    gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
-    specs_msg.header.stamp.sec = cur_time.sec;
-    specs_msg.header.stamp.nanosec = cur_time.nsec;
-    specs_msg.min_force = MIN_FORCE; // Minimum gripping force [N]
-    specs_msg.max_force = MAX_FORCE; // Maximun gripping force [N]
-
-    specs_msg.max_payload = MAX_FORCE;   // Maximum recommended payload [kg]
-
-    specs_msg.min_speed = MIN_SPEED;  // Minimum closing speed [mm/s]
-    specs_msg.max_speed = MAX_SPEED;  // Maximum  closing speed [mm/s]
-
-    specs_msg.max_acceleration = MAX_ACCELERATION;
-
-    specs_msg.max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
-    specs_msg.max_angle = MAX_ANGLE;  // Maximum permitted finger angle [rad]
-
-    specs_msg.repeatability = REPEATABILITY;
-
-    specs_pub->publish(specs_msg);
-  }
+  //
+  // void RobotiqHandLinearPlugin::timer_specs_msgs()
+  // {
+  //   hrim_actuator_gripper_srvs::srv::SpecsFingerGripper specs_msg;
+  //   gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
+  //   res->header.stamp.sec = cur_time.sec;
+  //   res->header.stamp.nanosec = cur_time.nsec;
+  //   res->min_force = MIN_FORCE; // Minimum gripping force [N]
+  //   res->max_force = MAX_FORCE; // Maximun gripping force [N]
+  //
+  //   res->max_payload = MAX_FORCE;   // Maximum recommended payload [kg]
+  //
+  //   res->min_speed = MIN_SPEED;  // Minimum closing speed [mm/s]
+  //   res->max_speed = MAX_SPEED;  // Maximum  closing speed [mm/s]
+  //
+  //   res->max_acceleration = MAX_ACCELERATION;
+  //
+  //   res->max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
+  //   res->max_angle = MAX_ANGLE;  // Maximum permitted finger angle [rad]
+  //
+  //   res->repeatability = REPEATABILITY;
+  //
+  //   specs_pub->publish(specs_msg);
+  // }
 
   void RobotiqHandLinearPlugin::timer_comm_msgs()
   {
@@ -486,11 +449,87 @@ namespace gazebo
     state_comm_msg.header.stamp.sec = cur_time.sec;
     state_comm_msg.header.stamp.nanosec = cur_time.nsec;
     state_comm_pub->publish(state_comm_msg);
+  }
 
-    hrim_generic_msgs::msg::SpecsCommunication specs_comm_msg;
-    specs_comm_msg.header.stamp.sec = cur_time.sec;
-    specs_comm_msg.header.stamp.nanosec = cur_time.nsec;
-    specs_comm_pub->publish(specs_comm_msg);
+
+  void RobotiqHandLinearPlugin::SpecsCommunicationService(
+      const std::shared_ptr<rmw_request_id_t> request_header,
+      const std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Request> req,
+      std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Response> res)
+  {
+
+  }
+
+  void RobotiqHandLinearPlugin::SpecsFingerGripperService(
+      const std::shared_ptr<rmw_request_id_t> request_header,
+      const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request> req,
+      std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Response> res)
+  {
+    res->min_force = MIN_FORCE; // Minimum gripping force [N]
+    res->max_force = MAX_FORCE; // Maximun gripping force [N]
+
+    res->max_payload = MAX_FORCE;   // Maximum recommended payload [kg]
+
+    res->min_speed = MIN_SPEED;  // Minimum closing speed [mm/s]
+    res->max_speed = MAX_SPEED;  // Maximum  closing speed [mm/s]
+
+    res->max_acceleration = MAX_ACCELERATION;
+
+    res->max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
+    res->max_angle = MAX_ANGLE;  // Maximum permitted finger angle [rad]
+
+    res->repeatability = REPEATABILITY;
+  }
+
+
+  void RobotiqHandLinearPlugin::IDService(
+      const std::shared_ptr<rmw_request_id_t> request_header,
+      const std::shared_ptr<hrim_generic_srvs::srv::ID::Request> req,
+      std::shared_ptr<hrim_generic_srvs::srv::ID::Response> res)
+  {
+    (void)request_header;
+    (void)req;
+
+    res->device_kind_id = hrim_generic_srvs::srv::ID::Response::HRIM_ACTUATOR;
+    res->hros_version = "Ardent";
+    res->hrim_version = "Anboto";
+  }
+
+  void RobotiqHandLinearPlugin::URDFService(
+      const std::shared_ptr<rmw_request_id_t> request_header,
+      const std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Request> req,
+      std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Response> res)
+  {
+    (void)request_header;
+    (void)req;
+
+    // std::ifstream t(urdf_file);
+    // std::string str;
+    //
+    // t.seekg(0, std::ios::end);
+    // str.reserve(t.tellg());
+    // t.seekg(0, std::ios::beg);
+    //
+    // str.assign((std::istreambuf_iterator<char>(t)),
+    //             std::istreambuf_iterator<char>());
+    //
+    // res->urdf_model = str;
+  }
+
+  void RobotiqHandLinearPlugin::Sim3DService(
+      const std::shared_ptr<rmw_request_id_t> request_header,
+      const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request> req,
+      std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response> res)
+  {
+    (void)request_header;
+    (void)req;
+
+    // std::ifstream ifs(stl_file, std::ios::binary|std::ios::ate);
+    // std::ifstream::pos_type pos = ifs.tellg();
+    //
+    // res->model.resize(pos);
+    // ifs.seekg(0, std::ios::beg);
+    // ifs.read(&res->model[0], pos);
   }
 
   GZ_REGISTER_MODEL_PLUGIN(RobotiqHandLinearPlugin)
