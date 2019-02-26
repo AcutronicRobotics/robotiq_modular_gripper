@@ -329,8 +329,8 @@ namespace gazebo
                         const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request>,
                         std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response>)> cb_Simulation3D_function = std::bind(
           &RobotiqHandLinearPlugin::Sim3DService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
-    sim_3d_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::Simulation3D>(service_name_simurdf, cb_Simulation3D_function);
-    RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_simurdf.c_str());
+    sim_3d_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::Simulation3D>(service_name_sim3d, cb_Simulation3D_function);
+    RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_sim3d.c_str());
 
     std::function<void( const std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request>,

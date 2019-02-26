@@ -22,9 +22,10 @@ find_package(ament_index_cpp REQUIRED)
 find_package(gazebo_dev REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_srvs REQUIRED)
 find_package(hrim_actuator_gripper_msgs REQUIRED)
 find_package(hrim_actuator_gripper_srvs REQUIRED)
+find_package(hrim_generic_srvs REQUIRED)
+find_package(hrim_generic_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -32,7 +33,6 @@ find_package(tf2_ros REQUIRED)
 include_directories(include
   ${gazebo_dev_INCLUDE_DIRS}
   ${gazebo_ros_INCLUDE_DIRS}
-  ${std_srvs_INCLUDE_DIRS}
   ${tf2_ros_INCLUDE_DIRS}
   ${tf2_INCLUDE_DIRS}
   ${tf2_geometry_msgs_INCLUDE_DIRS}
@@ -51,9 +51,10 @@ ament_target_dependencies(robotiq_angular_gripper_gazebo_plugin
   "tf2"
   "tf2_geometry_msgs"
   "tf2_ros"
-  "std_srvs"
   "hrim_actuator_gripper_msgs"
   "hrim_actuator_gripper_srvs"
+  "hrim_generic_srvs"
+  "hrim_generic_msgs"
   "ament_index_cpp"
 )
 
@@ -71,9 +72,10 @@ ament_target_dependencies(robotiq_linear_gripper_gazebo_plugin
   "tf2"
   "tf2_geometry_msgs"
   "tf2_ros"
-  "std_srvs"
   "hrim_actuator_gripper_msgs"
   "hrim_actuator_gripper_srvs"
+  "hrim_generic_srvs"
+  "hrim_generic_msgs"
   "ament_index_cpp"
 )
 
