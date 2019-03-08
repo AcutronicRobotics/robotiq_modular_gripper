@@ -324,7 +324,7 @@
         </limit>
       </axis>
     </joint>
-    <plugin filename="librobotiq_angular_gripper_gazebo_plugin.so" name="robotiq_85_gripper">
+    <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="robotiq_85_gripper">
       <left_joint>left_inner_knuckle_joint</left_joint>
       <left_joint>left_outer_knuckle_joint</left_joint>
       <right_joint>right_inner_knuckle_joint</right_joint>

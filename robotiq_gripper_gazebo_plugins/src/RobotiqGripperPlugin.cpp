@@ -1,24 +1,24 @@
 #include <string>
 #include <vector>
 
-#include "robotiq_gripper_gazebo_plugins/RobotiqPlugin.h"
+#include "robotiq_gripper_gazebo_plugins/RobotiqGripperPlugin.h"
 
 namespace gazebo
   {
   ////////////////////////////////////////////////////////////////////////////////
-  RobotiqHandPlugin::RobotiqHandPlugin()
+  RobotiqGripperPlugin::RobotiqGripperPlugin()
   {
-    printf("RobotiqHandPlugin\n");
+    printf("RobotiqGripperPlugin\n");
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  RobotiqHandPlugin::~RobotiqHandPlugin()
+  RobotiqGripperPlugin::~RobotiqGripperPlugin()
   {
     // gazebo::event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  bool RobotiqHandPlugin::IsHandFullyOpen()
+  bool RobotiqGripperPlugin::IsHandFullyOpen()
   {
     bool fingersOpen = true;
 
@@ -34,7 +34,7 @@ namespace gazebo
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  uint8_t RobotiqHandPlugin::GetCurrentPosition(
+  uint8_t RobotiqGripperPlugin::GetCurrentPosition(
     const gazebo::physics::JointPtr &_joint)
   {
     // Full range of motion.
@@ -48,7 +48,7 @@ namespace gazebo
       static_cast<uint8_t>(round(255.0 * relAngle.Radian() / range.Radian()));
   }
 
-  void RobotiqHandPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header,
+  void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header,
         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
         std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response)
   {
@@ -57,67 +57,37 @@ namespace gazebo
     targetPose_right = request->goal_angularposition;//right_inner_finger_joint->UpperLimit(0);
     targetPose_left = request->goal_angularposition;//left_inner_finger_joint->UpperLimit(0);
 
-    double currentPose_right = right_joint_v_.front()->Position(0);
-    double currentPose_left = left_joint_v_.front()->Position(0);
+    UpdateJointPIDs();
 
-    if(currentPose_right - targetPose_right > 0)
-      sentido = 1;
-    else
-      sentido = -1;
-
-    sentido = sentido*-1;
-
-    for (auto &posePID : right_posePID_v_){
-      posePID.Init(kp, ki, kd, imax, imin, cmdmax, cmdmin);
-      posePID.SetCmd(0.0);
-      if(sentido>0){
-        posePID.SetCmdMin(0);
-        posePID.SetCmdMax(cmdmax);
-      }else{
-        posePID.SetCmdMin(cmdmin);
-        posePID.SetCmdMax(0);
-      }
-    }
-
-    for (auto &posePID : left_posePID_v_){
-      posePID.Init(kp, ki, kd, imax, imin, cmdmax, cmdmin);
-      posePID.SetCmd(0.0);
-      if(sentido>0){
-        posePID.SetCmdMin(0);
-        posePID.SetCmdMax(cmdmax);
-      }else{
-        posePID.SetCmdMin(cmdmin);
-        posePID.SetCmdMax(0);
-      }
-    }
+    auto jointPIDS = this->model->GetJointController()->GetPositionPIDs();
 
     gzmsg << "Position PID parameters for joints "  << std::endl
-          << "\tKP: "     << left_posePID_v_.front().GetPGain()  << std::endl
-          << "\tKI: "     << left_posePID_v_.front().GetIGain()  << std::endl
-          << "\tKD: "     << left_posePID_v_.front().GetDGain()  << std::endl
-          << "\tIMin: "   << left_posePID_v_.front().GetIMin()   << std::endl
-          << "\tIMax: "   << left_posePID_v_.front().GetIMax()   << std::endl
-          << "\tCmdMin: " << left_posePID_v_.front().GetCmdMin() << std::endl
-          << "\tCmdMax: " << left_posePID_v_.front().GetCmdMax() << std::endl
+          << "\tKP: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetPGain()  << std::endl
+          << "\tKI: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIGain()  << std::endl
+          << "\tKD: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetDGain()  << std::endl
+          << "\tIMin: "   << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIMin()   << std::endl
+          << "\tIMax: "   << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIMax()   << std::endl
+          << "\tCmdMin: " << jointPIDS[left_joint_v_.front()->GetScopedName()].GetCmdMin() << std::endl
+          << "\tCmdMax: " << jointPIDS[left_joint_v_.front()->GetScopedName()].GetCmdMax() << std::endl
           << std::endl;
 
     response->goal_accepted = true;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  void RobotiqHandPlugin::Load(gazebo::physics::ModelPtr _parent,
+  void RobotiqGripperPlugin::Load(gazebo::physics::ModelPtr _parent,
                                sdf::ElementPtr _sdf)
   {
 
-    printf("RobotiqHandPlugin::Load\n");
-    gzmsg << "RobotiqHandPlugin::Load" << std::endl;
+    printf("RobotiqGripperPlugin::Load\n");
+    gzmsg << "RobotiqGripperPlugin::Load" << std::endl;
     this->model = _parent;
     this->world = this->model->GetWorld();
     this->sdf = _sdf;
 
     // Error message if the model couldn't be found
     if (!this->model){
-      gzerr<< "Parent model is NULL! RobotiqHandPlugin could not be loaded."<< std::endl;
+      gzerr<< "Parent model is NULL! RobotiqGripperPlugin could not be loaded."<< std::endl;
       return;
     }
 
@@ -143,6 +113,27 @@ namespace gazebo
     RCLCPP_INFO(ros_node_->get_logger(), "name %s\n", node_name.c_str());
 
     createGenericTopics(node_name);
+
+    if (_sdf->HasElement("p")){
+      kp = _sdf->GetElement("p")->Get<double>();
+      RCLCPP_INFO(ros_node_->get_logger(), "Taking kp value of [%s] from plugin", std::to_string(kp).c_str());
+    }else{
+      RCLCPP_INFO(ros_node_->get_logger(), "Using default kp value of [%s]", std::to_string(kp).c_str());
+    }
+
+    if (_sdf->HasElement("i")){
+      ki = _sdf->GetElement("i")->Get<double>();
+      RCLCPP_INFO(ros_node_->get_logger(), "Taking ki value of [%s] from plugin", std::to_string(ki).c_str());
+    }else{
+      RCLCPP_INFO(ros_node_->get_logger(), "Using default ki value of [%s]", std::to_string(ki).c_str());
+    }
+
+    if (_sdf->HasElement("d")){
+      kd = _sdf->GetElement("d")->Get<double>();
+      RCLCPP_INFO(ros_node_->get_logger(), "Taking kd value of [%s] from plugin", std::to_string(kd).c_str());
+    }else{
+      RCLCPP_INFO(ros_node_->get_logger(), "Using default kd value of [%s]", std::to_string(kd).c_str());
+    }
 
     ros_node_->set_parameters({
       rclcpp::Parameter("kp_gripper", kp),
@@ -229,9 +220,15 @@ namespace gazebo
       auto joint_name = left_joint_elem->Get<std::string>();
 
       auto joint = model->GetJoint(joint_name);
+
       if (!joint) {
         gzthrow("Could not find "+joint_name+" left joint\n");
       } else {
+        if (left_joint_elem->HasAttribute("multiplier")){
+          joint_multipliers_[joint->GetScopedName()] = std::stod(left_joint_elem->GetAttribute("multiplier")->GetAsString());
+        }else{
+          joint_multipliers_[joint->GetScopedName()] = 1;
+        }
         left_joint_v_.push_back(joint);
         RCLCPP_INFO(ros_node_->get_logger(), "Found left join [%s]", joint_name.c_str());
       }
@@ -247,12 +244,19 @@ namespace gazebo
 
     sdf::ElementPtr right_joint_elem = sdf->GetElement("right_joint");
     while (right_joint_elem) {
+
       auto joint_name = right_joint_elem->Get<std::string>();
 
       auto joint = model->GetJoint(joint_name);
+
       if (!joint) {
         gzthrow("Could not find "+joint_name+" right joint\n");
       } else {
+        if (right_joint_elem->HasAttribute("multiplier")){
+          joint_multipliers_[joint->GetScopedName()] = std::stod(right_joint_elem->GetAttribute("multiplier")->GetAsString());
+        }else{
+          joint_multipliers_[joint->GetScopedName()] = 1;
+        }
         right_joint_v_.push_back(joint);
         RCLCPP_INFO(ros_node_->get_logger(), "Found right join [%s]", joint_name.c_str());
       }
@@ -266,32 +270,10 @@ namespace gazebo
       return;
     }
 
-    for (auto &joint : left_joint_v_){
-      gazebo::common::PID tmp_pid;
-      tmp_pid.Init(kp, ki, kd, imax, imin, cmdmax, cmdmin);
-      gzmsg << joint->GetName().c_str() <<" LowerLimit " << joint->LowerLimit(0) << std::endl;
-      gzmsg << joint->GetName().c_str() <<" UpperLimit " << joint->UpperLimit(0) << std::endl;
-      tmp_pid.SetCmdMin(-joint->GetEffortLimit(0));
-      tmp_pid.SetCmdMax(joint->GetEffortLimit(0));
-      left_posePID_v_.push_back(tmp_pid);
-    }
-
-    for (auto &joint : right_joint_v_){
-      gazebo::common::PID tmp_pid;
-      tmp_pid.Init(kp, ki, kd, imax, imin, cmdmax, cmdmin);
-      gzmsg << joint->GetName().c_str() <<" LowerLimit " << joint->LowerLimit(0) << std::endl;
-      gzmsg << joint->GetName().c_str() <<" UpperLimit " << joint->UpperLimit(0) << std::endl;
-      tmp_pid.SetCmdMin(-joint->GetEffortLimit(0));
-      tmp_pid.SetCmdMax(joint->GetEffortLimit(0));
-      right_posePID_v_.push_back(tmp_pid);
-    }
-
-    this->lastControllerUpdateTime = this->world->SimTime();
-
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>,
                         std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = std::bind(
-          &RobotiqHandPlugin::gripper_service, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::gripper_service, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
 
     srv_ = ros_node_->create_service<hrim_actuator_gripper_srvs::srv::ControlFinger>(node_name + "/goal", cb_fingercontrol_function);
 
@@ -306,36 +288,38 @@ namespace gazebo
     // Connect to gazebo world update.
     this->updateConnection =
       gazebo::event::Events::ConnectWorldUpdateBegin(
-        boost::bind(&RobotiqHandPlugin::UpdateStates, this));
+        boost::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
 
-    sentido = -1;
-
+    UpdateJointPIDs();
   }
 
-  void RobotiqHandPlugin::UpdateStates()
-  {
-    gazebo::common::Time curTime = this->world->SimTime();
-
-    // Update the hand controller.
-    this->UpdatePIDControl((curTime - this->lastControllerUpdateTime).Double());
-
-    this->lastControllerUpdateTime = curTime;
+  void RobotiqGripperPlugin::UpdateJointPIDs(){
+    for(auto &joint : this->left_joint_v_){
+      this->model->GetJointController()->SetPositionPID(
+        joint->GetScopedName(),
+        common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
+    }
+    for(auto &joint : this->right_joint_v_){
+      this->model->GetJointController()->SetPositionPID(
+        joint->GetScopedName(),
+        common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
+    }
   }
 
-  void RobotiqHandPlugin::UpdatePIDControl(double _dt)
+  void RobotiqGripperPlugin::UpdatePIDControl()
   {
     // Set the joint's target velocity.
     for(auto &joint : this->left_joint_v_){
       this->model->GetJointController()->SetPositionTarget(
-        joint->GetScopedName(), targetPose_left);
+        joint->GetScopedName(), targetPose_left * joint_multipliers_[joint->GetScopedName()]);
     }
     for(auto &joint : this->right_joint_v_){
       this->model->GetJointController()->SetPositionTarget(
-        joint->GetScopedName(), targetPose_right);
+        joint->GetScopedName(), targetPose_right * joint_multipliers_[joint->GetScopedName()]);
     }
   }
 
-  void RobotiqHandPlugin::createGenericTopics(std::string node_name)
+  void RobotiqGripperPlugin::createGenericTopics(std::string node_name)
   {
     // create info topic
     std::string service_name_id = std::string(node_name) + "/id";
@@ -357,7 +341,7 @@ namespace gazebo
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_generic_srvs::srv::ID::Request>,
                         std::shared_ptr<hrim_generic_srvs::srv::ID::Response>)> cb_id_function = std::bind(
-          &RobotiqHandPlugin::IDService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::IDService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
 
     id_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::ID>(service_name_id, cb_id_function);
     RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_id.c_str());
@@ -371,21 +355,21 @@ namespace gazebo
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Request>,
                         std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Response>)> cb_SimulationURDF_function = std::bind(
-          &RobotiqHandPlugin::URDFService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::URDFService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
     sim_urdf_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::SimulationURDF>(service_name_simurdf, cb_SimulationURDF_function);
     RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_simurdf.c_str());
 
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request>,
                         std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response>)> cb_Simulation3D_function = std::bind(
-          &RobotiqHandPlugin::Sim3DService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::Sim3DService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
     sim_3d_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::Simulation3D>(service_name_sim3d, cb_Simulation3D_function);
     RCUTILS_LOG_INFO_NAMED(ros_node_->get_name(), "creating service called: %s ", service_name_sim3d.c_str());
 
     std::function<void( const std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request>,
                         std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Response>)> cb_SpecsFingerGripper_function = std::bind(
-          &RobotiqHandPlugin::SpecsFingerGripperService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::SpecsFingerGripperService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
     specs_srv_ = ros_node_->create_service<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper>(service_name_specs, cb_SpecsFingerGripper_function);
 
     state_comm_pub = ros_node_->create_publisher<hrim_generic_msgs::msg::StateCommunication>(topic_name_state_comm,
@@ -395,20 +379,40 @@ namespace gazebo
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Request>,
                         std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Response>)> cb_SpecsCommunication_function = std::bind(
-          &RobotiqHandPlugin::SpecsCommunicationService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+          &RobotiqGripperPlugin::SpecsCommunicationService, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
     specs_comm_srv_ = ros_node_->create_service<hrim_generic_srvs::srv::SpecsCommunication>(service_name_specs_comm, cb_SpecsCommunication_function);
 
     timer_status_ = ros_node_->create_wall_timer(
-        1s, std::bind(&RobotiqHandPlugin::timer_status_msgs, this));
+        1s, std::bind(&RobotiqGripperPlugin::timer_status_msgs, this));
     timer_power_ = ros_node_->create_wall_timer(
-        1s, std::bind(&RobotiqHandPlugin::timer_power_msgs, this));
+        1s, std::bind(&RobotiqGripperPlugin::timer_power_msgs, this));
     timer_comm_ = ros_node_->create_wall_timer(
-        1s, std::bind(&RobotiqHandPlugin::timer_comm_msgs, this));
+        1s, std::bind(&RobotiqGripperPlugin::timer_comm_msgs, this));
     timer_gripper_status_ = ros_node_->create_wall_timer(
-        100ms, std::bind(&RobotiqHandPlugin::timer_gripper_status_msgs, this));
+        100ms, std::bind(&RobotiqGripperPlugin::timer_gripper_status_msgs, this));
   }
 
-  void RobotiqHandPlugin::timer_power_msgs()
+  // void RobotiqGripperPlugin::readfullFile(std::string file_to_read, hrim_generic_srvs::srv::Simulation3D& msg_sim_3d)
+  // {
+  //   std::string robotiq_140_description_folder = ament_index_cpp::get_package_share_directory("robotiq_140_gripper_description");
+  //
+  //   gzmsg << "readfullFile " << robotiq_140_description_folder + file_to_read << std::endl;
+  //
+  //   std::ifstream ifs(robotiq_140_description_folder + file_to_read, std::ios::binary|std::ios::ate);
+  //
+  //   if(!ifs.is_open()){
+  //     gzmsg << "Error reading file " << robotiq_140_description_folder + file_to_read << std::endl;
+  //     return;
+  //   }
+  //
+  //   std::ifstream::pos_type pos = ifs.tellg();
+  //
+  //   msg_sim_3d.model.resize(pos);
+  //   ifs.seekg(0, std::ios::beg);
+  //   ifs.read((char *)&msg_sim_3d.model[0], pos);
+  //   ifs.close();
+  // }
+  void RobotiqGripperPlugin::timer_power_msgs()
   {
     hrim_generic_msgs::msg::Power power_msg;
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
@@ -420,7 +424,7 @@ namespace gazebo
     power_pub->publish(power_msg);
   }
 
-  void RobotiqHandPlugin::timer_status_msgs()
+  void RobotiqGripperPlugin::timer_status_msgs()
   {
     hrim_generic_msgs::msg::Status status_msg;
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
@@ -429,7 +433,7 @@ namespace gazebo
     status_pub->publish(status_msg);
   }
 
-  void RobotiqHandPlugin::timer_gripper_status_msgs()
+  void RobotiqGripperPlugin::timer_gripper_status_msgs()
   {
     hrim_actuator_gripper_msgs::msg::StateFingerGripper state_gripper_finger_msg;
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
@@ -446,8 +450,32 @@ namespace gazebo
     state_gripper_msg.on_off = true;
     gripper_state_pub->publish(state_gripper_msg);
   }
+  //
+  // void RobotiqGripperPlugin::timer_specs_msgs()
+  // {
+  //   hrim_actuator_gripper_srvs::srv::SpecsFingerGripper specs_msg;
+  //   gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
+  //   res->header.stamp.sec = cur_time.sec;
+  //   res->header.stamp.nanosec = cur_time.nsec;
+  //   res->min_force = MIN_FORCE; // Minimum gripping force [N]
+  //   res->max_force = MAX_FORCE; // Maximun gripping force [N]
+  //
+  //   res->max_payload = MAX_FORCE;   // Maximum recommended payload [kg]
+  //
+  //   res->min_speed = MIN_SPEED;  // Minimum closing speed [mm/s]
+  //   res->max_speed = MAX_SPEED;  // Maximum  closing speed [mm/s]
+  //
+  //   res->max_acceleration = MAX_ACCELERATION;
+  //
+  //   res->max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
+  //   res->max_angle = MAX_ANGLE;  // Maximum permitted finger angle [rad]
+  //
+  //   res->repeatability = REPEATABILITY;
+  //
+  //   specs_pub->publish(specs_msg);
+  // }
 
-  void RobotiqHandPlugin::timer_comm_msgs()
+  void RobotiqGripperPlugin::timer_comm_msgs()
   {
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
 
@@ -457,7 +485,8 @@ namespace gazebo
     state_comm_pub->publish(state_comm_msg);
   }
 
-  void RobotiqHandPlugin::SpecsCommunicationService(
+
+  void RobotiqGripperPlugin::SpecsCommunicationService(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Request> req,
       std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Response> res)
@@ -465,7 +494,7 @@ namespace gazebo
 
   }
 
-  void RobotiqHandPlugin::SpecsFingerGripperService(
+  void RobotiqGripperPlugin::SpecsFingerGripperService(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request> req,
       std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Response> res)
@@ -481,13 +510,13 @@ namespace gazebo
     res->max_acceleration = MAX_ACCELERATION;
 
     res->max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
-    res->max_angle = MAX_ANGLE;  // Maximum permitted finger angle [rad]
+    res->max_angle = left_joint_v_.front()->UpperLimit();  // Maximum permitted finger angle [rad]
 
     res->repeatability = REPEATABILITY;
   }
 
 
-  void RobotiqHandPlugin::IDService(
+  void RobotiqGripperPlugin::IDService(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<hrim_generic_srvs::srv::ID::Request> req,
       std::shared_ptr<hrim_generic_srvs::srv::ID::Response> res)
@@ -496,11 +525,11 @@ namespace gazebo
     (void)req;
 
     res->device_kind_id = hrim_generic_srvs::srv::ID::Response::HRIM_ACTUATOR;
-    res->hros_version = "Crystal";
-    res->hrim_version = "Coliza";
+    res->hros_version = "Ardent";
+    res->hrim_version = "Anboto";
   }
 
-  void RobotiqHandPlugin::URDFService(
+  void RobotiqGripperPlugin::URDFService(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Request> req,
       std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Response> res)
@@ -521,7 +550,7 @@ namespace gazebo
     // res->urdf_model = str;
   }
 
-  void RobotiqHandPlugin::Sim3DService(
+  void RobotiqGripperPlugin::Sim3DService(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request> req,
       std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response> res)
@@ -537,5 +566,5 @@ namespace gazebo
     // ifs.read(&res->model[0], pos);
   }
 
-  GZ_REGISTER_MODEL_PLUGIN(RobotiqHandPlugin)
+  GZ_REGISTER_MODEL_PLUGIN(RobotiqGripperPlugin)
 }
