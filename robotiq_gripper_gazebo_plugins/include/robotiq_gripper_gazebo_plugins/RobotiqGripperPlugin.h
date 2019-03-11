@@ -16,8 +16,8 @@
  *
 */
 
-#ifndef GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
-#define GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
+#ifndef GAZEBO_ROBOTIQ_GRIPPER_PLUGIN_HH
+#define GAZEBO_ROBOTIQ_GRIPPER_PLUGIN_HH
 
 #include <string>
 #include <vector>
@@ -68,26 +68,26 @@ using namespace std::chrono_literals;
 /// \brief A plugin that implements the Robotiq 2-Finger Adaptative Gripper.
 namespace gazebo
   {
-  class RobotiqHandPlugin : public gazebo::ModelPlugin
+  class RobotiqGripperPlugin : public gazebo::ModelPlugin
   {
 
     void createGenericTopics(std::string node_name);
 
     /// \brief Constructor.
-    public: RobotiqHandPlugin();
+    public: RobotiqGripperPlugin();
 
     /// \brief Destructor.
-    public: virtual ~RobotiqHandPlugin();
+    public: virtual ~RobotiqGripperPlugin();
 
     private: uint8_t GetCurrentPosition(const gazebo::physics::JointPtr &_joint);
     private: bool IsHandFullyOpen();
 
-    private: void UpdatePIDControl(double _dt);
+    private: void UpdateJointPIDs();
+
+    private: void UpdatePIDControl();
 
     // Documentation inherited.
     public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-
-    public: void UpdateStates();
 
     /// \brief World pointer.
     private: gazebo::physics::WorldPtr world;
@@ -101,12 +101,9 @@ namespace gazebo
     /// \brief gazebo world update connection.
     private: gazebo::event::ConnectionPtr updateConnection;
 
-    private: std::vector<gazebo::common::PID> left_posePID_v_;
-    private: std::vector<gazebo::common::PID> right_posePID_v_;
     private: std::vector<physics::JointPtr> left_joint_v_;
     private: std::vector<physics::JointPtr> right_joint_v_;
-
-    private: gazebo::common::Time lastControllerUpdateTime;
+    private: std::map<std::string, double> joint_multipliers_;
 
     /// \brief Min. joint speed (rad/s). Finger is 125mm and tip speed is 22mm/s.
     private: const double MinVelocity = 0.176;
@@ -124,11 +121,10 @@ namespace gazebo
     private: const double PoseTolerance = 0.002;
 
     int sentido = 1;
-    int count = 0;
 
-    double kp = 5.0;
-    double ki = 0.2;
-    double kd = 0.05;
+    double kp = 1;
+    double ki = 0.1;
+    double kd = 0.01;
     double imin = 0.0;
     double imax = 0.0;
     double cmdmax = 10.0;
@@ -197,4 +193,4 @@ namespace gazebo
 
   };
 }
-#endif  // GAZEBO_ROBOTIQ_HAND_PLUGIN_HH
+#endif  // GAZEBO_ROBOTIQ_GRIPPER_PLUGIN_HH
