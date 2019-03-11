@@ -114,22 +114,22 @@ namespace gazebo
 
     createGenericTopics(node_name);
 
-    if (_sdf->HasElement("p")){
-      kp = _sdf->GetElement("p")->Get<double>();
+    if (_sdf->HasElement("kp")){
+      kp = _sdf->GetElement("kp")->Get<double>();
       RCLCPP_INFO(ros_node_->get_logger(), "Taking kp value of [%s] from plugin", std::to_string(kp).c_str());
     }else{
       RCLCPP_INFO(ros_node_->get_logger(), "Using default kp value of [%s]", std::to_string(kp).c_str());
     }
 
-    if (_sdf->HasElement("i")){
-      ki = _sdf->GetElement("i")->Get<double>();
+    if (_sdf->HasElement("ki")){
+      ki = _sdf->GetElement("ki")->Get<double>();
       RCLCPP_INFO(ros_node_->get_logger(), "Taking ki value of [%s] from plugin", std::to_string(ki).c_str());
     }else{
       RCLCPP_INFO(ros_node_->get_logger(), "Using default ki value of [%s]", std::to_string(ki).c_str());
     }
 
-    if (_sdf->HasElement("d")){
-      kd = _sdf->GetElement("d")->Get<double>();
+    if (_sdf->HasElement("kd")){
+      kd = _sdf->GetElement("kd")->Get<double>();
       RCLCPP_INFO(ros_node_->get_logger(), "Taking kd value of [%s] from plugin", std::to_string(kd).c_str());
     }else{
       RCLCPP_INFO(ros_node_->get_logger(), "Using default kd value of [%s]", std::to_string(kd).c_str());

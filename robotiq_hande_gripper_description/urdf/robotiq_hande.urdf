@@ -84,9 +84,9 @@
   </gazebo>
   <gazebo>
     <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="robotiq_hande_gripper">
-      <p>10</p>
-      <i>3</i>
-      <d>5</d>
+      <kp>10</kp>
+      <ki>3</ki>
+      <kd>5</kd>
       <left_joint>finger1_joint</left_joint>
       <right_joint>finger2_joint</right_joint>
     </plugin>
