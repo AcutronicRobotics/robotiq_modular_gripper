@@ -27,8 +27,7 @@ namespace gazebo
     ignition::math::Angle tolerance;
     tolerance.Degree(1.0);
 
-    fingersOpen = fingersOpen && (left_joint_v_.front()->Position(0) < (left_joint_v_.front()->LowerLimit(0) + tolerance.Radian()));
-    fingersOpen = fingersOpen && (right_joint_v_.front()->Position(0) < (right_joint_v_.front()->LowerLimit(0) + tolerance.Radian()));
+    fingersOpen = fingersOpen && (joint_v_.front()->Position(0) < (joint_v_.front()->LowerLimit(0) + tolerance.Radian()));
 
     return fingersOpen;
   }
@@ -54,21 +53,21 @@ namespace gazebo
   {
     (void)request_header;
 
-    targetPose_right = request->goal_angularposition;//right_inner_finger_joint->UpperLimit(0);
-    targetPose_left = request->goal_angularposition;//left_inner_finger_joint->UpperLimit(0);
+    targetJoint = request->goal_linearposition;
+    targetRotation = request->goal_angularposition;
 
     UpdateJointPIDs();
 
     auto jointPIDS = this->model->GetJointController()->GetPositionPIDs();
 
     gzmsg << "Position PID parameters for joints "  << std::endl
-          << "\tKP: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetPGain()  << std::endl
-          << "\tKI: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIGain()  << std::endl
-          << "\tKD: "     << jointPIDS[left_joint_v_.front()->GetScopedName()].GetDGain()  << std::endl
-          << "\tIMin: "   << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIMin()   << std::endl
-          << "\tIMax: "   << jointPIDS[left_joint_v_.front()->GetScopedName()].GetIMax()   << std::endl
-          << "\tCmdMin: " << jointPIDS[left_joint_v_.front()->GetScopedName()].GetCmdMin() << std::endl
-          << "\tCmdMax: " << jointPIDS[left_joint_v_.front()->GetScopedName()].GetCmdMax() << std::endl
+          << "\tKP: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetPGain()  << std::endl
+          << "\tKI: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetIGain()  << std::endl
+          << "\tKD: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetDGain()  << std::endl
+          << "\tIMin: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMin()   << std::endl
+          << "\tIMax: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMax()   << std::endl
+          << "\tCmdMin: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMin() << std::endl
+          << "\tCmdMax: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMax() << std::endl
           << std::endl;
 
     response->goal_accepted = true;
@@ -215,59 +214,59 @@ namespace gazebo
     };
     ros_node_->register_param_change_callback(param_change_callback);
 
-    sdf::ElementPtr left_joint_elem = sdf->GetElement("left_joint");
-    while (left_joint_elem) {
-      auto joint_name = left_joint_elem->Get<std::string>();
+    sdf::ElementPtr joint_elem = sdf->GetElement("joint");
+    while (joint_elem) {
+      auto joint_name = joint_elem->Get<std::string>();
 
       auto joint = model->GetJoint(joint_name);
 
       if (!joint) {
-        gzthrow("Could not find "+joint_name+" left joint\n");
+        gzthrow("Could not find "+joint_name+" joint\n");
       } else {
-        if (left_joint_elem->HasAttribute("multiplier")){
-          joint_multipliers_[joint->GetScopedName()] = std::stod(left_joint_elem->GetAttribute("multiplier")->GetAsString());
+        if (joint_elem->HasAttribute("multiplier")){
+          joint_multipliers_[joint->GetScopedName()] = std::stod(joint_elem->GetAttribute("multiplier")->GetAsString());
         }else{
           joint_multipliers_[joint->GetScopedName()] = 1;
         }
-        left_joint_v_.push_back(joint);
-        RCLCPP_INFO(ros_node_->get_logger(), "Found left join [%s]", joint_name.c_str());
+        joint_v_.push_back(joint);
+        RCLCPP_INFO(ros_node_->get_logger(), "Found joint [%s]", joint_name.c_str());
       }
 
-      left_joint_elem = left_joint_elem->GetNextElement("left_joint");
+      joint_elem = joint_elem->GetNextElement("joint");
     }
 
-    if (left_joint_v_.empty()) {
-      RCLCPP_ERROR(ros_node_->get_logger(), "No left joints found.");
+    if (joint_v_.empty()) {
+      RCLCPP_ERROR(ros_node_->get_logger(), "No joints found.");
       ros_node_.reset();
       return;
     }
 
-    sdf::ElementPtr right_joint_elem = sdf->GetElement("right_joint");
-    while (right_joint_elem) {
 
-      auto joint_name = right_joint_elem->Get<std::string>();
+    if (_sdf->HasElement("rotation")){
+      sdf::ElementPtr rotation_elem = sdf->GetElement("rotation");
+      while (rotation_elem) {
+        auto rotation_name = rotation_elem->Get<std::string>();
 
-      auto joint = model->GetJoint(joint_name);
+        auto rotation = model->GetJoint(rotation_name);
 
-      if (!joint) {
-        gzthrow("Could not find "+joint_name+" right joint\n");
-      } else {
-        if (right_joint_elem->HasAttribute("multiplier")){
-          joint_multipliers_[joint->GetScopedName()] = std::stod(right_joint_elem->GetAttribute("multiplier")->GetAsString());
-        }else{
-          joint_multipliers_[joint->GetScopedName()] = 1;
+        if (!rotation) {
+          gzthrow("Could not find "+rotation_name+" rotation\n");
+        } else {
+          if (rotation_elem->HasAttribute("multiplier")){
+            rotation_multipliers_[rotation->GetScopedName()] = std::stod(rotation_elem->GetAttribute("multiplier")->GetAsString());
+          }else{
+            rotation_multipliers_[rotation->GetScopedName()] = 1;
+          }
+          rotation_v_.push_back(rotation);
+          RCLCPP_INFO(ros_node_->get_logger(), "Found rotation [%s]", rotation_name.c_str());
         }
-        right_joint_v_.push_back(joint);
-        RCLCPP_INFO(ros_node_->get_logger(), "Found right join [%s]", joint_name.c_str());
+
+        rotation_elem = rotation_elem->GetNextElement("rotation");
       }
 
-      right_joint_elem = right_joint_elem->GetNextElement("right_joint");
-    }
-
-    if (right_joint_v_.empty()) {
-      RCLCPP_ERROR(ros_node_->get_logger(), "No right joints found.");
-      ros_node_.reset();
-      return;
+      if (rotation_v_.empty()) {
+        RCLCPP_INFO(ros_node_->get_logger(), "No rotations found.");
+      }
     }
 
     std::function<void( std::shared_ptr<rmw_request_id_t>,
@@ -294,28 +293,32 @@ namespace gazebo
   }
 
   void RobotiqGripperPlugin::UpdateJointPIDs(){
-    for(auto &joint : this->left_joint_v_){
+    for(auto &joint : this->joint_v_){
       this->model->GetJointController()->SetPositionPID(
         joint->GetScopedName(),
         common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
     }
-    for(auto &joint : this->right_joint_v_){
-      this->model->GetJointController()->SetPositionPID(
-        joint->GetScopedName(),
-        common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
+    if (!rotation_v_.empty()) {
+      for(auto &rotation : this->rotation_v_){
+        this->model->GetJointController()->SetPositionPID(
+          rotation->GetScopedName(),
+          common::PID(kp, ki, kd, imax, imin, rotation->LowerLimit(0), rotation->UpperLimit(0)));
+      }
     }
   }
 
   void RobotiqGripperPlugin::UpdatePIDControl()
   {
     // Set the joint's target velocity.
-    for(auto &joint : this->left_joint_v_){
+    for(auto &joint : this->joint_v_){
       this->model->GetJointController()->SetPositionTarget(
-        joint->GetScopedName(), targetPose_left * joint_multipliers_[joint->GetScopedName()]);
+        joint->GetScopedName(), targetJoint * joint_multipliers_[joint->GetScopedName()]);
     }
-    for(auto &joint : this->right_joint_v_){
-      this->model->GetJointController()->SetPositionTarget(
-        joint->GetScopedName(), targetPose_right * joint_multipliers_[joint->GetScopedName()]);
+    if (!rotation_v_.empty()) {
+      for(auto &rotation : this->rotation_v_){
+        this->model->GetJointController()->SetPositionTarget(
+          rotation->GetScopedName(), targetRotation * rotation_multipliers_[rotation->GetScopedName()]);
+      }
     }
   }
 
@@ -439,8 +442,12 @@ namespace gazebo
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
     state_gripper_finger_msg.header.stamp.sec = cur_time.sec;
     state_gripper_finger_msg.header.stamp.nanosec = cur_time.nsec;
-    state_gripper_finger_msg.angular_position = right_joint_v_.front()->Position(0);
-    state_gripper_finger_msg.linear_position = 0;
+    state_gripper_finger_msg.linear_position = joint_v_.front()->Position(0);
+
+    if (!rotation_v_.empty())
+      state_gripper_finger_msg.angular_position = rotation_v_.front()->Position(0);
+    else
+      state_gripper_finger_msg.angular_position = 0;
 
     gripper_finger_state_pub->publish(state_gripper_finger_msg);
 
@@ -510,7 +517,7 @@ namespace gazebo
     res->max_acceleration = MAX_ACCELERATION;
 
     res->max_length = MAX_LENGHT; // Maximum permitted finger length [mm]
-    res->max_angle = left_joint_v_.front()->UpperLimit();  // Maximum permitted finger angle [rad]
+    res->max_angle = joint_v_.front()->UpperLimit();  // Maximum permitted finger angle [rad]
 
     res->repeatability = REPEATABILITY;
   }

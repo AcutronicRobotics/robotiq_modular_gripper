@@ -325,10 +325,10 @@
       </axis>
     </joint>
     <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="robotiq_85_gripper">
-      <left_joint>left_inner_knuckle_joint</left_joint>
-      <left_joint>left_outer_knuckle_joint</left_joint>
-      <right_joint>right_inner_knuckle_joint</right_joint>
-      <right_joint>joint_finger</right_joint>
+      <joint>left_inner_knuckle_joint</joint>
+      <joint>left_outer_knuckle_joint</joint>
+      <joint>right_inner_knuckle_joint</joint>
+      <joint>joint_finger</joint>
     </plugin>
   </gazebo>
   <link name="world"/>
