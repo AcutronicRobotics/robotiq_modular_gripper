@@ -103,6 +103,8 @@ namespace gazebo
 
     private: std::vector<physics::JointPtr> joint_v_;
     private: std::map<std::string, double> joint_multipliers_;
+    private: std::vector<physics::JointPtr> rotation_v_;
+    private: std::map<std::string, double> rotation_multipliers_;
 
     /// \brief Min. joint speed (rad/s). Finger is 125mm and tip speed is 22mm/s.
     private: const double MinVelocity = 0.176;
@@ -130,6 +132,7 @@ namespace gazebo
     double cmdmin = -10.0;
 
     double targetJoint  = 0.0;
+    double targetRotation  = 0.0;
 
     /// A pointer to the GazeboROS node.
     gazebo_ros::Node::SharedPtr ros_node_;

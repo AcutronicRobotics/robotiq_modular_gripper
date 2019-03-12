@@ -54,6 +54,7 @@ namespace gazebo
     (void)request_header;
 
     targetJoint = request->goal_linearposition;
+    targetRotation = request->goal_angularposition;
 
     UpdateJointPIDs();
 
@@ -241,6 +242,33 @@ namespace gazebo
     }
 
 
+    if (_sdf->HasElement("rotation")){
+      sdf::ElementPtr rotation_elem = sdf->GetElement("rotation");
+      while (rotation_elem) {
+        auto rotation_name = rotation_elem->Get<std::string>();
+
+        auto rotation = model->GetJoint(rotation_name);
+
+        if (!rotation) {
+          gzthrow("Could not find "+rotation_name+" rotation\n");
+        } else {
+          if (rotation_elem->HasAttribute("multiplier")){
+            rotation_multipliers_[rotation->GetScopedName()] = std::stod(rotation_elem->GetAttribute("multiplier")->GetAsString());
+          }else{
+            rotation_multipliers_[rotation->GetScopedName()] = 1;
+          }
+          rotation_v_.push_back(rotation);
+          RCLCPP_INFO(ros_node_->get_logger(), "Found rotation [%s]", rotation_name.c_str());
+        }
+
+        rotation_elem = rotation_elem->GetNextElement("rotation");
+      }
+
+      if (rotation_v_.empty()) {
+        RCLCPP_INFO(ros_node_->get_logger(), "No rotations found.");
+      }
+    }
+
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>,
                         std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = std::bind(
@@ -270,6 +298,13 @@ namespace gazebo
         joint->GetScopedName(),
         common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
     }
+    if (!rotation_v_.empty()) {
+      for(auto &rotation : this->rotation_v_){
+        this->model->GetJointController()->SetPositionPID(
+          rotation->GetScopedName(),
+          common::PID(kp, ki, kd, imax, imin, rotation->LowerLimit(0), rotation->UpperLimit(0)));
+      }
+    }
   }
 
   void RobotiqGripperPlugin::UpdatePIDControl()
@@ -278,6 +313,12 @@ namespace gazebo
     for(auto &joint : this->joint_v_){
       this->model->GetJointController()->SetPositionTarget(
         joint->GetScopedName(), targetJoint * joint_multipliers_[joint->GetScopedName()]);
+    }
+    if (!rotation_v_.empty()) {
+      for(auto &rotation : this->rotation_v_){
+        this->model->GetJointController()->SetPositionTarget(
+          rotation->GetScopedName(), targetRotation * rotation_multipliers_[rotation->GetScopedName()]);
+      }
     }
   }
 
@@ -401,8 +442,12 @@ namespace gazebo
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
     state_gripper_finger_msg.header.stamp.sec = cur_time.sec;
     state_gripper_finger_msg.header.stamp.nanosec = cur_time.nsec;
-    state_gripper_finger_msg.angular_position = joint_v_.front()->Position(0);
-    state_gripper_finger_msg.linear_position = 0;
+    state_gripper_finger_msg.linear_position = joint_v_.front()->Position(0);
+
+    if (!rotation_v_.empty())
+      state_gripper_finger_msg.angular_position = rotation_v_.front()->Position(0);
+    else
+      state_gripper_finger_msg.angular_position = 0;
 
     gripper_finger_state_pub->publish(state_gripper_finger_msg);
 
