@@ -91,7 +91,7 @@ namespace gazebo
     // Documentation inherited.
     public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \ brief Handle wimulation reset.
+    /// \ brief Handle simulation reset.
     public: void Reset();
 
     /// \brief World pointer.
