@@ -58,16 +58,9 @@ namespace gazebo
       targetJoint = request->goal_linearposition;
       targetRotation = request->goal_angularposition;
 
-      //////// new code
       double current_pose_rad = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
       double start_time = 0;
-      std::cout << "\ngripper_service prints" <<std::endl;
-      std::cout << current_pose_rad <<std::endl;
-      std::cout << targetJoint <<std::endl;
-      std::cout << MaxVelocity <<std::endl;
-
       double end_time = fabs(current_pose_rad - targetJoint) / MaxVelocity;
-      std::cout << end_time <<std::endl;
 
       std::vector<double> X(2), Y_pos(2);
       X[0] = start_time;
@@ -82,7 +75,6 @@ namespace gazebo
       for(double t = start_time; t < end_time; t+=0.001 ){
         interpolated_targetJoint.push_back(interpolation_linear_pos(t));
       }
-      //////// new code
 
       UpdateJointPIDs();
 
