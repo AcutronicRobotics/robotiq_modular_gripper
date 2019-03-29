@@ -51,26 +51,55 @@ namespace gazebo
         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
         std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response)
   {
-    (void)request_header;
+    if(!executing_joints){
+      (void)request_header;
 
-    targetJoint = request->goal_linearposition;
-    targetRotation = request->goal_angularposition;
+      interpolated_targetJoint.clear();
+      targetJoint = request->goal_linearposition;
+      targetRotation = request->goal_angularposition;
 
-    UpdateJointPIDs();
+      //////// new code
+      double current_pose_rad = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
+      double start_time = 0;
+      std::cout << "\ngripper_service prints" <<std::endl;
+      std::cout << current_pose_rad <<std::endl;
+      std::cout << targetJoint <<std::endl;
+      std::cout << MaxVelocity <<std::endl;
 
-    auto jointPIDS = this->model->GetJointController()->GetPositionPIDs();
+      double end_time = fabs(current_pose_rad - targetJoint) / MaxVelocity;
+      std::cout << end_time <<std::endl;
 
-    gzmsg << "Position PID parameters for joints "  << std::endl
-          << "\tKP: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetPGain()  << std::endl
-          << "\tKI: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetIGain()  << std::endl
-          << "\tKD: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetDGain()  << std::endl
-          << "\tIMin: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMin()   << std::endl
-          << "\tIMax: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMax()   << std::endl
-          << "\tCmdMin: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMin() << std::endl
-          << "\tCmdMax: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMax() << std::endl
-          << std::endl;
+      std::vector<double> X(2), Y_pos(2);
+      X[0] = start_time;
+      X[1] = end_time;
+      Y_pos[0] = current_pose_rad;
+      Y_pos[1] = targetJoint;
 
-    response->goal_accepted = true;
+      tk::spline interpolation_linear_pos;
+      if(!interpolation_linear_pos.set_points(X, Y_pos))
+        return;
+
+      for(double t = start_time; t < end_time; t+=0.001 ){
+        interpolated_targetJoint.push_back(interpolation_linear_pos(t));
+      }
+      //////// new code
+
+      UpdateJointPIDs();
+
+      auto jointPIDS = this->model->GetJointController()->GetPositionPIDs();
+
+      gzmsg << "Position PID parameters for joints "  << std::endl
+            << "\tKP: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetPGain()  << std::endl
+            << "\tKI: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetIGain()  << std::endl
+            << "\tKD: "     << jointPIDS[joint_v_.front()->GetScopedName()].GetDGain()  << std::endl
+            << "\tIMin: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMin()   << std::endl
+            << "\tIMax: "   << jointPIDS[joint_v_.front()->GetScopedName()].GetIMax()   << std::endl
+            << "\tCmdMin: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMin() << std::endl
+            << "\tCmdMax: " << jointPIDS[joint_v_.front()->GetScopedName()].GetCmdMax() << std::endl
+            << std::endl;
+
+      response->goal_accepted = true;
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -269,6 +298,11 @@ namespace gazebo
       }
     }
 
+    interpolated_targetJoint.clear();
+    executing_joints = false;
+    index_executing_joints = 0.0;
+    targetJoint = 0.0;
+
     std::function<void( std::shared_ptr<rmw_request_id_t>,
                         const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>,
                         std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = std::bind(
@@ -309,6 +343,20 @@ namespace gazebo
 
   void RobotiqGripperPlugin::UpdatePIDControl()
   {
+    if(!executing_joints && interpolated_targetJoint.size()>0){
+        index_executing_joints = 0;
+        executing_joints = true;
+    }
+    if(executing_joints){
+      targetJoint = interpolated_targetJoint[index_executing_joints];
+      index_executing_joints++;
+      if(index_executing_joints==interpolated_targetJoint.size()){
+        executing_joints = false;
+        interpolated_targetJoint.clear();
+        index_executing_joints = 0;
+      }
+    }
+
     // Set the joint's target velocity.
     for(auto &joint : this->joint_v_){
       this->model->GetJointController()->SetPositionTarget(
@@ -320,6 +368,13 @@ namespace gazebo
           rotation->GetScopedName(), targetRotation * rotation_multipliers_[rotation->GetScopedName()]);
       }
     }
+  }
+
+  void RobotiqGripperPlugin::Reset()
+  {
+    interpolated_targetJoint.clear();
+    targetJoint = 0;
+    executing_joints = false;
   }
 
   void RobotiqGripperPlugin::createGenericTopics(std::string node_name)
