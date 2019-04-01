@@ -55,18 +55,18 @@ namespace gazebo
       (void)request_header;
 
       interpolated_targetJoint.clear();
-      targetJoint = request->goal_linearposition;
-      targetRotation = request->goal_angularposition;
+      targetJoint_goal = request->goal_linearposition;
+      targetRotation_goal = request->goal_angularposition;
 
       double current_pose_rad = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
       double start_time = 0;
-      double end_time = fabs(current_pose_rad - targetJoint) / MaxVelocity;
+      double end_time = fabs(current_pose_rad - targetJoint_goal) / MaxVelocity;
 
       std::vector<double> X(2), Y_pos(2);
       X[0] = start_time;
       X[1] = end_time;
       Y_pos[0] = current_pose_rad;
-      Y_pos[1] = targetJoint;
+      Y_pos[1] = targetJoint_goal;
 
       tk::spline interpolation_linear_pos;
       if(!interpolation_linear_pos.set_points(X, Y_pos))

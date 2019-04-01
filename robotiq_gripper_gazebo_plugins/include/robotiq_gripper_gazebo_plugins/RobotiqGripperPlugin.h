@@ -137,7 +137,9 @@ namespace gazebo
     double cmdmin = -10.0;
 
     double targetJoint  = 0.0;
+    double targetJoint_goal = 0.0;
     double targetRotation  = 0.0;
+    double targetRotation_goal = 0.0;
 
     std::vector<float> interpolated_targetJoint;
 
