@@ -112,12 +112,19 @@
     </gazebo>
 
     <gazebo>
-      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="robotiq_hande_gripper">
+      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
         <kp>10</kp>
         <ki>3</ki>
         <kd>5</kd>
         <joint>joint_finger</joint>
         <joint>finger2_joint</joint>
+      </plugin>
+      <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
+        <ros>
+          <argument>~/out:=joint_states</argument>
+        </ros>
+        <update_rate>25</update_rate>
+        <joint_name>joint_finger</joint_name>
       </plugin>
     </gazebo>
 

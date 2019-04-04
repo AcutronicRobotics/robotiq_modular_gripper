@@ -374,11 +374,18 @@
           </limit>
         </axis>
       </joint>
-      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="robotiq_85_gripper">
+      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
         <joint>left_inner_knuckle_joint</joint>
         <joint>left_outer_knuckle_joint</joint>
         <joint>right_inner_knuckle_joint</joint>
         <joint>joint_finger</joint>
+      </plugin>
+      <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
+        <ros>
+          <argument>~/out:=joint_states</argument>
+        </ros>
+        <update_rate>25</update_rate>
+        <joint_name>joint_finger</joint_name>
       </plugin>
     </gazebo>
   </xacro:macro>
