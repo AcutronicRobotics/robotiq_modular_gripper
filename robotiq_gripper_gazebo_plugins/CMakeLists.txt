@@ -36,6 +36,10 @@ include_directories(include
   ${tf2_ros_INCLUDE_DIRS}
   ${tf2_INCLUDE_DIRS}
   ${tf2_geometry_msgs_INCLUDE_DIRS}
+  ${hrim_actuator_gripper_msgs_INCLUDE_DIRS}
+  ${hrim_actuator_gripper_srvs_INCLUDE_DIRS}
+  ${hrim_generic_msgs_INCLUDE_DIRS}
+  ${hrim_generic_srvs_INCLUDE_DIRS}
 )
 link_directories(${gazebo_dev_LIBRARY_DIRS})
 
