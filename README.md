@@ -88,7 +88,7 @@ Install ROS 2.0 following the official instructions: [source](https://index.ros.
 ## Create mara ROS 2.0 workspace
 Create a ROS workspace, for example:
 
-```bash
+```sh
 mkdir -p ~/ros2_mara_ws/src
 cd ~/ros2_mara_ws
 sudo apt install -y python3-vcstool python3-numpy
@@ -98,26 +98,19 @@ vcs import src < mara-ros2.repos
 
 Generate HRIM dependencies:
 
-```bash
-pip3 install lxml
+```sh
 cd ~/ros2_mara_ws/src/HRIM
+sudo pip3 install hrim
 python3 hrim.py generate models/actuator/servo/servo.xml
 python3 hrim.py generate models/actuator/gripper/gripper.xml
 ```
 
 ## Compile
-
-**Optional note**: If you want to use MoveIT! you need to source ROS 1.0 environment variables. Typically, if you have installed ROS `Kinetic`, you need to source the following file:
-
-```bash
-source /opt/ros/kinetic/setup.bash
-```
-
 Right now you can compile the code:
 
-```bash
+```sh
 source /opt/ros/crystal/setup.bash
-cd ~/ros2_mara_ws && colcon build --merge-install
+cd ~/ros2_mara_ws && colcon build --merge-install --packages-skip individual_trajectories_bridge
 ```
 
 # Launch
