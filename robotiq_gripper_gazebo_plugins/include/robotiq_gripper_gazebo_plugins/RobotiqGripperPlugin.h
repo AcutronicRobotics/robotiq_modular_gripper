@@ -28,8 +28,6 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo_ros/node.hpp>
 
-#include <robotiq_gripper_gazebo_plugins/spline.hpp>
-
 #include <hrim_actuator_gripper_msgs/msg/state_gripper.hpp>
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/specs_finger_gripper.hpp>
@@ -91,9 +89,6 @@ namespace gazebo
     // Documentation inherited.
     public: void Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-    /// \ brief Handle simulation reset.
-    public: void Reset();
-
     /// \brief World pointer.
     private: gazebo::physics::WorldPtr world;
 
@@ -137,16 +132,7 @@ namespace gazebo
     double cmdmin = -10.0;
 
     double targetJoint  = 0.0;
-    double targetJoint_goal = 0.0;
     double targetRotation  = 0.0;
-    double targetRotation_goal = 0.0;
-
-    std::vector<float> interpolated_targetJoint;
-
-    double current_pose_rad = 0.0;
-
-    bool executing_joints;
-    unsigned int index_executing_joints;
 
     /// A pointer to the GazeboROS node.
     gazebo_ros::Node::SharedPtr ros_node_;
