@@ -46,6 +46,7 @@ link_directories(${gazebo_dev_LIBRARY_DIRS})
 # robotiq finger gripper plugin
 add_library(robotiq_gripper_gazebo_plugin SHARED
   src/RobotiqGripperPlugin.cpp
+  src/spline.cpp
 )
 
 ament_target_dependencies(robotiq_gripper_gazebo_plugin
