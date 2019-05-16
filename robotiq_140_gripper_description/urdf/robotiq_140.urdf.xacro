@@ -2,40 +2,6 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
   <xacro:macro name="robotiq_gripper"  params="prefix">
-
-    <link name="robotiq_adapter_link">
-      <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
-      </inertial>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 1.57" />
-        <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/hros_robotiq_adapter.dae" scale="0.001 0.001 0.001"/>
-        </geometry>
-        <material name="Gazebo/Black">
-          <color rgba="0.0 0.0 0.0 1" />
-        </material>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 1.57" />
-        <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/hros_robotiq_adapter.dae" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
-    </link>
-    <gazebo reference="robotiq_adapter_link">
-      <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
-    </gazebo>
-
-    <joint name="base_adapter_to_base_robotiq_joint" type="fixed">
-      <origin rpy="0 0 0" xyz=" 0 0 0.03653"/>
-      <parent link="robotiq_adapter_link" />
-      <child link="robotiq_arg2f_base_link"/>
-    </joint>
-
     <link name="robotiq_arg2f_base_link">
       <inertial>
         <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
@@ -43,7 +9,7 @@
         <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
       </inertial>
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 1.57" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
           <mesh filename="package://robotiq_140_gripper_description/meshes/GRIPPER_base_axis.dae" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -52,7 +18,7 @@
         </material>
       </visual>
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 1.57" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
           <mesh filename="package://robotiq_140_gripper_description/meshes/GRIPPER_base_axis.dae" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -78,7 +44,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
@@ -87,7 +53,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
@@ -111,7 +77,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
@@ -120,7 +86,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
@@ -144,7 +110,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_inner_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="Gazebo/Black">
           <color rgba="0.1 0.1 0.1 1" />
@@ -171,7 +137,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_inner_knuckle.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="Gazebo/Black">
           <color rgba="0.1 0.1 0.1 1" />
@@ -265,7 +231,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_finger.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_finger.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="Gazebo/Black">
           <color rgba="0.1 0.1 0.1 1" />
@@ -274,7 +240,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_finger.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_outer_finger.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
@@ -298,7 +264,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_finger.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_finger.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="Gazebo/Black">
           <color rgba="0.1 0.1 0.1 1" />
@@ -307,7 +273,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_finger.dae" />
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_outer_finger.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
@@ -316,96 +282,96 @@
       <selfCollide>False</selfCollide>
     </gazebo>
 
-    <joint name="left_outer_knuckle_joint" type="revolute">
-      <origin xyz="0 -0.030601 0.054905" rpy="2.31 0 0" />
+    <joint name="robotiq_arg2f_base_to_left_outer_knuckle" type="revolute">
+      <origin xyz="0.0306 0 0.05466" rpy="0 0 0" />
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_outer_knuckle" />
-      <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.775"  velocity="2.0" effort="1000" />
+      <axis xyz="0 -1 0" />
+      <limit lower="0" upper="0.78574722925"  velocity="2.0" effort="1000" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
     <joint name="joint_finger" type="revolute">
-      <origin xyz="0 0.030601 0.054905" rpy="2.31 0 3.14159265359" />
+      <origin xyz="-0.0306 0 0.05466" rpy="0 0 0" />
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_outer_knuckle" />
-      <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.775" velocity="2.0" effort="1000" />
+      <axis xyz="0 1 0" />
+      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
     </joint>
 
-    <joint name="left_inner_knuckle_joint" type="revolute">
-      <origin xyz="0 -0.0127 0.06142" rpy="2.29 0 0" />
+    <joint name="robotiq_arg2f_base_to_left_inner_knuckle" type="revolute">
+      <origin xyz="0.0127 0 0.06118" rpy="0 0 0" />
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_inner_knuckle" />
-      <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.78" velocity="2.0" effort="1000" />
+      <axis xyz="0 -1 0" />
+      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
-    <joint name="right_inner_knuckle_joint" type="revolute">
-      <origin xyz="0 0.0127 0.06142" rpy="2.29 0 -3.14159265359" />
+    <joint name="robotiq_arg2f_base_to_right_inner_knuckle" type="revolute">
+      <origin xyz="-0.0127 0 0.06118" rpy="0 0 0" />
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_inner_knuckle" />
-      <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.78" velocity="2.0" effort="1000" />
+      <axis xyz="0 1 0" />
+      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
-    <joint name="left_outer_finger_joint" type="fixed">
-      <origin xyz="0 0.01821998610742 0.0260018192872234" rpy="0 0 0" />
+    <joint name="left_outer_knuckle_to_finger" type="fixed">
+      <origin xyz="0.03142 0 -0.00453" rpy="0 0 0" />
       <parent link="left_outer_knuckle" />
       <child link="left_outer_finger" />
     </joint>
 
-    <joint name="right_outer_finger_joint" type="fixed">
-      <origin xyz="0 0.01821998610742 0.0260018192872234" rpy="0 0 0" />
+    <joint name="right_outer_knuckle_to_finger" type="fixed">
+      <origin xyz="-0.03142 0 -0.00453" rpy="0 0 0" />
       <parent link="right_outer_knuckle" />
       <child link="right_outer_finger" />
     </joint>
 
-    <joint name="left_inner_finger_joint" type="revolute">
-      <origin xyz="0 0.0817554015893473 -0.0282203446692936" rpy="-.725 0 0" />
+    <joint name="left_outer_finger_to_inner" type="revolute">
+      <origin xyz="0.03543 0 0.0789" rpy="0 0 0" />
       <parent link="left_outer_finger" />
       <child link="left_inner_finger" />
-      <axis xyz="1 0 0" />
-      <limit lower="0" upper="0.8757" velocity="2.0" effort="1000" />
+      <axis xyz="0 -1 0" />
+      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
-    <joint name="right_inner_finger_joint" type="revolute">
-      <origin xyz="0 0.0817554015893473 -0.0282203446692936" rpy="-.725 0 0" />
+    <joint name="right_outer_finger_to_inner" type="revolute">
+      <origin xyz="-0.03543 0 0.0789" rpy="0 0 0" />
       <parent link="right_outer_finger" />
       <child link="right_inner_finger" />
-      <axis xyz="1 0 0" />
-      <limit lower="0" upper="0.8757" velocity="2.0" effort="1000" />
+      <axis xyz="0 1 0" />
+      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
     <gazebo>
-      <joint name="left_inner_finger_knuckle_joint" type="revolute">
-        <pose frame="">0 0.006 -0.018 0 0 0</pose>
+      <joint name="left_inner_knuckle_to_finger" type="revolute">
+        <pose frame="">0.06686 0 0.07436 0 0 0</pose>
         <parent>${prefix}::left_inner_knuckle</parent>
         <child>${prefix}::left_inner_finger</child>
         <axis>
-          <xyz>1 0 0</xyz>
+          <xyz>0 -1 0</xyz>
           <limit>
-            <lower>-0.8</lower>
-            <upper>0.8</upper>
+            <lower>0</lower>
+            <upper>0.78574722925</upper>
             <velocity>2.0</velocity>
             <effort>1000</effort>
           </limit>
         </axis>
       </joint>
 
-      <joint name="right_inner_finger_knuckle_joint" type="revolute">
-        <pose frame="">0 0.006 -0.018 0 0 0</pose>
+      <joint name="right_inner_knuckle_to_finger" type="revolute">
+        <pose frame="">-0.06686 0 0.07436 0 0 0</pose>
         <parent>${prefix}::right_inner_knuckle</parent>
         <child>${prefix}::right_inner_finger</child>
         <axis>
-          <xyz>-1 0 0</xyz>
+          <xyz>0 1 0</xyz>
           <limit>
-            <lower>-0.8</lower>
-            <upper>0.8</upper>
+            <lower>0</lower>
+            <upper>0.78574722925</upper>
             <velocity>2.0</velocity>
             <effort>1000</effort>
           </limit>
@@ -413,9 +379,9 @@
       </joint>
 
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
-        <joint>left_inner_knuckle_joint</joint>
-        <joint>left_outer_knuckle_joint</joint>
-        <joint>right_inner_knuckle_joint</joint>
+        <joint>robotiq_arg2f_base_to_left_inner_knuckle</joint>
+        <joint>robotiq_arg2f_base_to_left_outer_knuckle</joint>
+        <joint>robotiq_arg2f_base_to_right_inner_knuckle</joint>
         <joint>joint_finger</joint>
       </plugin>
       <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
