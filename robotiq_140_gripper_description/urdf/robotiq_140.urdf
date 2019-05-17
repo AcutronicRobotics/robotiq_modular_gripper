@@ -271,7 +271,7 @@
     <origin rpy="0 0 0" xyz="0.03543 0 0.0789"/>
     <parent link="left_outer_finger"/>
     <child link="left_inner_finger"/>
-    <axis xyz="0 -1 0"/>
+    <axis xyz="0 1 0"/>
     <limit effort="1000" lower="0" upper="0.78574722925" velocity="2.0"/>
     <mimic joint="joint_finger" multiplier="1" offset="0"/>
   </joint>
@@ -279,17 +279,17 @@
     <origin rpy="0 0 0" xyz="-0.03543 0 0.0789"/>
     <parent link="right_outer_finger"/>
     <child link="right_inner_finger"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <limit effort="1000" lower="0" upper="0.78574722925" velocity="2.0"/>
     <mimic joint="joint_finger" multiplier="1" offset="0"/>
   </joint>
   <gazebo>
     <joint name="left_inner_knuckle_to_finger" type="revolute">
-      <pose frame="">0.06686 0 0.07436 0 0 0</pose>
+      <pose frame="">-0.0179 0 0.00652 0 0 0</pose>
       <parent>robotiq_140::left_inner_knuckle</parent>
       <child>robotiq_140::left_inner_finger</child>
       <axis>
-        <xyz>0 -1 0</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
           <lower>0</lower>
           <upper>0.78574722925</upper>
@@ -299,11 +299,11 @@
       </axis>
     </joint>
     <joint name="right_inner_knuckle_to_finger" type="revolute">
-      <pose frame="">-0.06686 0 0.07436 0 0 0</pose>
+      <pose frame="">0.0179 0 0.00652 0 0 0</pose>
       <parent>robotiq_140::right_inner_knuckle</parent>
       <child>robotiq_140::right_inner_finger</child>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 -1 0</xyz>
         <limit>
           <lower>0</lower>
           <upper>0.78574722925</upper>
