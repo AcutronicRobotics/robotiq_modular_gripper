@@ -249,7 +249,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_outer_knuckle" />
       <axis xyz="0 -1 0" />
-      <limit lower="0.0" upper="0.78" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -258,7 +258,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_outer_knuckle" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.78" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
     </joint>
 
     <joint name="robotiq_arg2f_base_link_to_left_inner_knuckle" type="revolute">
@@ -266,7 +266,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_inner_knuckle" />
       <axis xyz="0 -1 0" />
-      <limit lower="0" upper="0.8757" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -275,7 +275,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_inner_knuckle" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.8757" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -284,7 +284,7 @@
       <parent link="left_outer_finger" />
       <child link="left_inner_finger" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.775" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -293,7 +293,7 @@
       <parent link="right_outer_finger" />
       <child link="right_inner_finger" />
       <axis xyz="0 -1 0" />
-      <limit lower="0" upper="0.775" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.82589" velocity="3.87" effort="21.03" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -317,10 +317,10 @@
         <axis>
           <xyz>0 1 0</xyz>
           <limit>
-            <lower>-0.8</lower>
-            <upper>0.8</upper>
-            <velocity>2.0</velocity>
-            <effort>1000</effort>
+            <lower>0</lower>
+            <upper>0.82589</upper>
+            <velocity>3.87</velocity>
+            <effort>21.03</effort>
           </limit>
         </axis>
       </joint>
@@ -332,10 +332,10 @@
         <axis>
           <xyz>0 -1 0</xyz>
           <limit>
-            <lower>-0.8</lower>
-            <upper>0.8</upper>
-            <velocity>2.0</velocity>
-            <effort>1000</effort>
+            <lower>0</lower>
+            <upper>0.82589</upper>
+            <velocity>3.87</velocity>
+            <effort>21.03</effort>
           </limit>
         </axis>
       </joint>
