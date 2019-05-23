@@ -28,29 +28,14 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo_ros/node.hpp>
 
-#include <hrim_actuator_gripper_msgs/msg/state_gripper.hpp>
+// HRIM
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
-#include <hrim_actuator_gripper_srvs/srv/specs_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/control_finger.hpp>
 
-// HRIM messages
-#include "hrim_generic_srvs/srv/id.hpp"
-#include "hrim_generic_msgs/msg/status.hpp"
-#include "hrim_generic_msgs/msg/power.hpp"
-#include "hrim_generic_srvs/srv/simulation3_d.hpp"
-#include "hrim_generic_srvs/srv/simulation_urdf.hpp"
-#include "hrim_generic_srvs/srv/specs_communication.hpp"
-#include "hrim_generic_msgs/msg/state_communication.hpp"
-
-#include <ament_index_cpp/get_package_share_directory.hpp>
-
-// Boost
-#include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
 using namespace std::chrono_literals;
 
-/// \brief A plugin that implements the Robotiq 2-Finger Adaptative Gripper.
 namespace gazebo
   {
   class RobotiqGripperPlugin : public gazebo::ModelPlugin
