@@ -25,7 +25,7 @@
     </link>
     <gazebo reference="robotiq_arg2f_base_link">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="left_outer_knuckle">
@@ -52,7 +52,7 @@
     </link>
     <gazebo reference="left_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="right_outer_knuckle">
@@ -79,7 +79,7 @@
     </link>
     <gazebo reference="right_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="left_outer_finger">
@@ -106,7 +106,7 @@
     </link>
     <gazebo reference="left_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="right_outer_finger">
@@ -133,7 +133,7 @@
     </link>
     <gazebo reference="right_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="left_inner_knuckle">
@@ -160,7 +160,7 @@
     </link>
     <gazebo reference="left_inner_knuckle">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="right_inner_knuckle">
@@ -187,7 +187,7 @@
     </link>
     <gazebo reference="right_inner_knuckle">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="left_inner_finger">
@@ -214,7 +214,7 @@
     </link>
     <gazebo reference="left_inner_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="right_inner_finger">
@@ -241,7 +241,7 @@
     </link>
     <gazebo reference="right_inner_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <joint name="robotiq_arg2f_base_link_to_left_outer_knuckle" type="revolute">
@@ -341,6 +341,9 @@
       </joint>
 
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
+        <kp>10</kp>
+        <ki>10</ki>
+        <kd>0.1</kd>
         <joint>robotiq_arg2f_base_link_to_left_inner_knuckle</joint>
         <joint>robotiq_arg2f_base_link_to_left_outer_knuckle</joint>
         <joint>robotiq_arg2f_base_link_to_right_inner_knuckle</joint>
