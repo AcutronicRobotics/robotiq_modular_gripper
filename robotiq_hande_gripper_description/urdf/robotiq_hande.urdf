@@ -6,9 +6,9 @@
 <robot name="robotiq_hande" xmlns:xacro="http://ros.org/wiki/xacro">
   <link name="robotiq_hande_base_link">
     <inertial>
-      <origin rpy="0 0 0" xyz="8.625E-08 -4.6583E-06 0.03145"/>
-      <mass value="0.22652"/>
-      <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478"/>
+      <origin rpy="0 0 0" xyz="0 0 0.04607"/>
+      <mass value="0.86387"/>
+      <inertia ixx="1017560E-9" ixy="0" ixz="2235E-9" iyy="1028041E-9" iyz="0" izz="489810E-9"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -30,11 +30,11 @@
     <material>Gazebo/Black</material>
     <selfCollide>True</selfCollide>
   </gazebo>
-  <link name="finger1">
+  <link name="left_finger">
     <inertial>
-      <origin rpy="0 0 0" xyz="8.625E-08 -4.6583E-06 0.03145"/>
-      <mass value="0.22652"/>
-      <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478"/>
+      <origin rpy="0 0 0" xyz="0.02262 -0.00759 0.00738"/>
+      <mass value="0.03804"/>
+      <inertia ixx="13567E-9" ixy="1849E-9" ixz="3622E-9" iyy="15784E-9" iyz="3616E-9" izz="7478E-9"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -52,15 +52,15 @@
       </geometry>
     </collision>
   </link>
-  <gazebo reference="finger1">
+  <gazebo reference="left_finger">
     <material>Gazebo/Grey</material>
     <selfCollide>True</selfCollide>
   </gazebo>
-  <link name="finger2">
+  <link name="right_finger">
     <inertial>
-      <origin rpy="0 0 0" xyz="8.625E-08 -4.6583E-06 0.03145"/>
-      <mass value="0.22652"/>
-      <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478"/>
+      <origin rpy="0 0 0" xyz="-0.02262 0.00759 0.00738"/>
+      <mass value="0.03804"/>
+      <inertia ixx="13567E-9" ixy="1849E-9" ixz="-3622E-9" iyy="15784E-9" iyz="-3616E-9" izz="7478E-9"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -78,21 +78,21 @@
       </geometry>
     </collision>
   </link>
-  <gazebo reference="finger2">
+  <gazebo reference="right_finger">
     <material>Gazebo/Grey</material>
     <selfCollide>True</selfCollide>
   </gazebo>
   <joint name="joint_finger" type="prismatic">
     <origin rpy="0 0 0" xyz="0 0 0.099"/>
     <parent link="robotiq_hande_base_link"/>
-    <child link="finger1"/>
+    <child link="left_finger"/>
     <axis xyz="-1 0 0"/>
     <limit effort="130" lower="0" upper="0.025" velocity="0.15"/>
   </joint>
-  <joint name="finger2_joint" type="prismatic">
+  <joint name="robotiq_hande_base_to_right_finger" type="prismatic">
     <origin rpy="0 0 0" xyz="0 0 0.099"/>
     <parent link="robotiq_hande_base_link"/>
-    <child link="finger2"/>
+    <child link="right_finger"/>
     <axis xyz="1 0 0"/>
     <limit effort="130" lower="0" upper="0.025" velocity="0.15"/>
     <mimic joint="joint_finger" multiplier="1" offset="0"/>
@@ -101,9 +101,9 @@
     <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
       <kp>10</kp>
       <ki>3</ki>
-      <kd>5</kd>
+      <kd>9</kd>
       <joint>joint_finger</joint>
-      <joint>finger2_joint</joint>
+      <joint>robotiq_hande_base_to_right_finger</joint>
     </plugin>
     <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
       <ros>
