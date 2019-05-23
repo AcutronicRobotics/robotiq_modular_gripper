@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-
   <xacro:macro name="robotiq_gripper"  params="prefix">
     <link name="robotiq_arg2f_base_link">
       <inertial>
@@ -379,11 +378,15 @@
       </joint>
 
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
+        <kp>1</kp>
+        <ki>0.1</ki>
+        <kd>0.01</kd>
         <joint>robotiq_arg2f_base_to_left_inner_knuckle</joint>
         <joint>robotiq_arg2f_base_to_left_outer_knuckle</joint>
         <joint>robotiq_arg2f_base_to_right_inner_knuckle</joint>
         <joint>joint_finger</joint>
       </plugin>
+
       <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
         <ros>
           <argument>~/out:=joint_states</argument>
@@ -392,6 +395,5 @@
         <joint_name>joint_finger</joint_name>
       </plugin>
     </gazebo>
-
   </xacro:macro>
 </robot>
