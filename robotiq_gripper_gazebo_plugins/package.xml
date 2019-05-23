@@ -12,8 +12,9 @@
   <author email="ahcorde@erlerobotics.com">Alejandro Hernandez</author>
   <author email="ibai@erlerobotics.com">Ibai Apellaniz</author>
   <maintainer email="ahcorde@erlerobotics.com">Alejandro Hernandez</maintainer>
-  <url type="repository">https://github.com/erlerobot/mara</url>
-  <url type="bugtracker">https://github.com/erlerobot/mara/issues</url>
+  <maintainer email="yue@erlerobotics.com">Yue Erro</maintainer>
+  <url type="repository">https://github.com/AcutronicRobotics/robotiq_modular_gripper</url>
+  <url type="bugtracker">https://github.com/AcutronicRobotics/robotiq_modular_gripper/issues</url>
 
   <author>Alejandro Hernandez</author>
 
