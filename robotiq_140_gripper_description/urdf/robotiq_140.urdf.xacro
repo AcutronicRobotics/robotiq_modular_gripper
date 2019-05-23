@@ -97,6 +97,12 @@
           <color rgba="0.1 0.1 0.1 1" />
         </material>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
     </link>
     <gazebo reference="left_inner_knuckle">
       <material>Gazebo/Black</material>
@@ -118,6 +124,12 @@
           <color rgba="0.1 0.1 0.1 1" />
         </material>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
     </link>
     <gazebo reference="right_inner_knuckle">
       <material>Gazebo/Black</material>
