@@ -3,9 +3,9 @@
   <xacro:macro name="robotiq_85"  params="prefix">
     <link name="robotiq_arg2f_base_link">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.00013 -0.00011 0.03284" rpy="0 0 0" />
+        <mass value="0.55938" />
+        <inertia ixx="605783E-9" ixy="-579.95E-9" ixz="2765.53E-9" iyy="720148E-9" iyz="618E-9" izz="510534E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -30,9 +30,9 @@
 
     <link name="left_outer_knuckle">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="0.01545 0 -0.00118" rpy="0 0 0" />
+        <mass value="0.01252" />
+        <inertia ixx="312.44E-9" ixy="0" ixz="-168.09E-9" iyy="2156E-9" iyz="0" izz="2027.51E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -57,9 +57,9 @@
 
     <link name="right_outer_knuckle">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.01545 0 -0.00118" rpy="0 0 0" />
+        <mass value="0.01252" />
+        <inertia ixx="312.44E-9" ixy="0" ixz="-168.09E-9" iyy="2156E-9" iyz="0" izz="2027.51E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -84,9 +84,9 @@
 
     <link name="left_outer_finger">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="0.004 0 0.01892" rpy="0 0 0" />
+        <mass value="0.03848" />
+        <inertia ixx="12341E-9" ixy="0" ixz="-2152.21E-9" iyy="10617E-9" iyz="0" izz="4812.09E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -111,9 +111,9 @@
 
     <link name="right_outer_finger">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.004 0 0.01892" rpy="0 0 0" />
+        <mass value="0.03848" />
+        <inertia ixx="12341E-9" ixy="0" ixz="-2152.21E-9" iyy="10617E-9" iyz="0" izz="4812.09E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -138,9 +138,9 @@
 
     <link name="left_inner_knuckle">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="0.01952 0 0.022" rpy="0 0 0" />
+        <mass value="0.02731" />
+        <inertia ixx="8621.3E-9" ixy="0" ixz="-3646.49E-9" iyy="8004.28E-9" iyz="0" izz="7704.42E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -165,9 +165,9 @@
 
     <link name="right_inner_knuckle">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.01952 0 0.022" rpy="0 0 0" />
+        <mass value="0.02731" />
+        <inertia ixx="8621.3E-9" ixy="0" ixz="-3646.49E-9" iyy="8004.28E-9" iyz="0" izz="7704.42E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -192,9 +192,9 @@
 
     <link name="left_inner_finger">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.01409 0 0.01569" rpy="0 0 0" />
+        <mass value="0.037" />
+        <inertia ixx="12446.57E-9" ixy="0" ixz="4167.81E-9" iyy="14201.18E-9" iyz="0" izz="4979.86E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -219,9 +219,9 @@
 
     <link name="right_inner_finger">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="0.01409 0 0.01569" rpy="0 0 0" />
+        <mass value="0.037" />
+        <inertia ixx="12446.57E-9" ixy="0" ixz="4167.81E-9" iyy="14201.18E-9" iyz="0" izz="4979.86E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -339,12 +339,14 @@
           </limit>
         </axis>
       </joint>
+
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
         <joint>robotiq_arg2f_base_link_to_left_inner_knuckle</joint>
         <joint>robotiq_arg2f_base_link_to_left_outer_knuckle</joint>
         <joint>robotiq_arg2f_base_link_to_right_inner_knuckle</joint>
         <joint>joint_finger</joint>
       </plugin>
+
       <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
         <ros>
           <argument>~/out:=joint_states</argument>
