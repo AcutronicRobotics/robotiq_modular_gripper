@@ -25,7 +25,7 @@
     </link>
     <gazebo reference="robotiq_hande_base_link">
       <material>Gazebo/Black</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="left_finger">
@@ -52,7 +52,7 @@
     </link>
     <gazebo reference="left_finger">
       <material>Gazebo/Grey</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <link name="right_finger">
@@ -79,7 +79,7 @@
     </link>
     <gazebo reference="right_finger">
       <material>Gazebo/Grey</material>
-      <selfCollide>True</selfCollide>
+      <selfCollide>False</selfCollide>
     </gazebo>
 
     <joint name="joint_finger" type="prismatic">
@@ -101,7 +101,7 @@
 
     <gazebo>
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
-        <kp>10</kp>
+        <kp>100</kp>
         <ki>3</ki>
         <kd>9</kd>
         <joint>joint_finger</joint>
