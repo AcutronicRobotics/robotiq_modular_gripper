@@ -14,12 +14,20 @@ namespace gazebo{
   void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response){
     (void)request_header;
 
-    if(this->model->GetName() == "hande"){
+    if(this->model->GetName() == "hande")
       target = request->goal_linearposition;
-    }
-    else
+
+    else if(this->model->GetName() == "robotiq85" || this->model->GetName() == "robotiq_140")
       target = request->goal_angularposition;
 
+    if(target < 0.0){
+      target = 0.0;
+      std::cout << "goal changed to its minimum value: 0.0" << std::endl;
+    }
+    else if(target > jointsVec[0]->UpperLimit(0)){
+      target = jointsVec[0]->UpperLimit(0);
+      std::cout << "goal changed to its maximum value: " << jointsVec[0]->UpperLimit(0) << std::endl;
+    }
     response->goal_accepted = true;
   }
 
@@ -97,18 +105,17 @@ namespace gazebo{
   }
 
   void RobotiqGripperPlugin::timer_fingerstate_msgs(){
-    hrim_actuator_gripper_msgs::msg::StateFingerGripper fingerstateMsg;
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
-    fingerstateMsg.header.stamp.sec = cur_time.sec;
-    fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
+    this->fingerstateMsg.header.stamp.sec = cur_time.sec;
+    this->fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
 
     if(this->model->GetName() == "hande"){
-      fingerstateMsg.linear_position = jointsVec.front()->Position(0);
-      fingerstateMsg.angular_position = 0;
+      this->fingerstateMsg.linear_position = jointsVec.front()->Position(0);
+      this->fingerstateMsg.angular_position = 0;
     }
     else{
-      fingerstateMsg.linear_position = 0;
-      fingerstateMsg.angular_position = jointsVec.front()->Position(0);
+      this->fingerstateMsg.linear_position = 0;
+      this->fingerstateMsg.angular_position = jointsVec.front()->Position(0);
     }
     fingerstatePublisher->publish(fingerstateMsg);
   }

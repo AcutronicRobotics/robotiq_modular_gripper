@@ -53,15 +53,18 @@ namespace gazebo
       std::vector<physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
+      hrim_actuator_gripper_msgs::msg::StateFingerGripper fingerstateMsg;
+
       double target;
-      double kp = 500;
-      double ki = 0.1;
-      double kd = 1;
+      double kp = 400.0;
+      double ki = 1;
+      double kd = 0.01;
       double imin = 0.0;
       double imax = 0.0;
-      double cmdmax = 10.0;
       double cmdmin = -10.0;
+      double cmdmax = 10.0;
 
+      void createTopicAndService(std::string node_name);
       void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
       void timer_fingerstate_msgs();
       void UpdatePIDControl();
@@ -72,7 +75,6 @@ namespace gazebo
       ~RobotiqGripperPlugin();
 
       void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf);
-      void createTopicAndService(std::string node_name);
   };
 }
 #endif
