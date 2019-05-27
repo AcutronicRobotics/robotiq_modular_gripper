@@ -28,7 +28,7 @@
   </link>
   <gazebo reference="robotiq_arg2f_base_link">
     <material>Gazebo/Black</material>
-    <selfCollide>False</selfCollide>
+    <selfCollide>True</selfCollide>
   </gazebo>
   <link name="left_outer_knuckle">
     <inertial>
@@ -54,7 +54,7 @@
   </link>
   <gazebo reference="left_outer_knuckle">
     <material>Gazebo/Grey</material>
-    <selfCollide>False</selfCollide>
+    <selfCollide>True</selfCollide>
   </gazebo>
   <link name="right_outer_knuckle">
     <inertial>
@@ -80,7 +80,7 @@
   </link>
   <gazebo reference="right_outer_knuckle">
     <material>Gazebo/Grey</material>
-    <selfCollide>False</selfCollide>
+    <selfCollide>True</selfCollide>
   </gazebo>
   <link name="left_outer_finger">
     <inertial>
@@ -106,7 +106,7 @@
   </link>
   <gazebo reference="left_outer_finger">
     <material>Gazebo/Black</material>
-    <selfCollide>False</selfCollide>
+    <selfCollide>True</selfCollide>
   </gazebo>
   <link name="right_outer_finger">
     <inertial>
@@ -132,7 +132,7 @@
   </link>
   <gazebo reference="right_outer_finger">
     <material>Gazebo/Black</material>
-    <selfCollide>False</selfCollide>
+    <selfCollide>True</selfCollide>
   </gazebo>
   <link name="left_inner_knuckle">
     <inertial>
@@ -164,7 +164,7 @@
     <inertial>
       <origin rpy="0 0 0" xyz="-0.01952 0 0.022"/>
       <mass value="0.02731"/>
-      <inertia ixx="8621.3E-9" ixy="0" ixz="-3646.49E-9" iyy="8004.28E-9" iyz="0" izz="7704.42E-9"/>
+      <inertia ixx="8621.3E-9" ixy="0" ixz="3646.49E-9" iyy="8004.28E-9" iyz="0" izz="7704.42E-9"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -216,7 +216,7 @@
     <inertial>
       <origin rpy="0 0 0" xyz="0.01409 0 0.01569"/>
       <mass value="0.037"/>
-      <inertia ixx="12446.57E-9" ixy="0" ixz="4167.81E-9" iyy="14201.18E-9" iyz="0" izz="4979.86E-9"/>
+      <inertia ixx="12446.57E-9" ixy="0" ixz="-4167.81E-9" iyy="14201.18E-9" iyz="0" izz="4979.86E-9"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
