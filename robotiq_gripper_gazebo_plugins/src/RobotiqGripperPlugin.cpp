@@ -22,11 +22,11 @@ namespace gazebo{
 
     if(target < 0.0){
       target = 0.0;
-      std::cout << "goal changed to its minimum value: 0.0" << std::endl;
+      RCLCPP_INFO(node->get_logger(), "goal changed to its minimum value: 0.0");
     }
     else if(target > jointsVec[0]->UpperLimit(0)){
       target = jointsVec[0]->UpperLimit(0);
-      std::cout << "goal changed to its maximum value: " << jointsVec[0]->UpperLimit(0) << std::endl;
+      RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", jointsVec[0]->UpperLimit(0));
     }
     response->goal_accepted = true;
   }
@@ -105,17 +105,18 @@ namespace gazebo{
   }
 
   void RobotiqGripperPlugin::timer_fingerstate_msgs(){
+    hrim_actuator_gripper_msgs::msg::StateFingerGripper fingerstateMsg;
     gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
-    this->fingerstateMsg.header.stamp.sec = cur_time.sec;
-    this->fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
+    fingerstateMsg.header.stamp.sec = cur_time.sec;
+    fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
 
     if(this->model->GetName() == "hande"){
-      this->fingerstateMsg.linear_position = jointsVec.front()->Position(0);
-      this->fingerstateMsg.angular_position = 0;
+      fingerstateMsg.linear_position = jointsVec.front()->Position(0);
+      fingerstateMsg.angular_position = 0;
     }
     else{
-      this->fingerstateMsg.linear_position = 0;
-      this->fingerstateMsg.angular_position = jointsVec.front()->Position(0);
+      fingerstateMsg.linear_position = 0;
+      fingerstateMsg.angular_position = jointsVec.front()->Position(0);
     }
     fingerstatePublisher->publish(fingerstateMsg);
   }
