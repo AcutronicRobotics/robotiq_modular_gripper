@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-
   <xacro:macro name="robotiq_gripper"  params="prefix">
     <link name="robotiq_arg2f_base_link">
       <inertial>
-        <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
-        <mass value="0.22652" />
-        <inertia ixx="0.00020005" ixy="0" ixz="0" iyy="0.00017832" iyz="0" izz="0.00013478" />
+        <origin xyz="-0.00013 0.00011 0.03284" rpy="0 0 0" />
+        <mass value="0.52954" />
+        <inertia ixx="573495E-9" ixy="-554E-9" ixz="2628E-9" iyy="681780E-9" iyz="607E-9" izz="483281E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -26,20 +25,14 @@
     </link>
     <gazebo reference="robotiq_arg2f_base_link">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="left_outer_knuckle">
       <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="0.00853198276973456" />
-        <inertia
-            ixx="2.89328108496468E-06"
-            ixy="-1.57935047237397E-19"
-            ixz="-1.93980378593255E-19"
-            iyy="1.86719750325683E-06"
-            iyz="-1.21858577871576E-06"
-            izz="1.21905238907251E-06" />
+        <origin xyz="0.01616 0 -0.00133" rpy="0 0 0" />
+        <mass value="0.0131" />
+        <inertia ixx="325.5E-9" ixy="0" ixz="197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -59,20 +52,14 @@
     </link>
     <gazebo reference="left_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="right_outer_knuckle">
       <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="0.00853198276973456" />
-        <inertia
-            ixx="2.89328108496468E-06"
-            ixy="-1.57935047237397E-19"
-            ixz="-1.93980378593255E-19"
-            iyy="1.86719750325683E-06"
-            iyz="-1.21858577871576E-06"
-            izz="1.21905238907251E-06" />
+        <origin xyz="-0.01616 0 -0.00133" rpy="0 0 0" />
+        <mass value="0.0131" />
+        <inertia ixx="325.5E-9" ixy="0" ixz="-197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -92,20 +79,14 @@
     </link>
     <gazebo reference="right_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="left_inner_knuckle">
       <inertial>
-        <origin xyz="0.000123011831763771 0.0507850843201817 0.00103968640075166" rpy="0 0 0" />
-        <mass value="0.0271177346495152" />
-        <inertia
-            ixx="2.61910379223783E-05"
-            ixy="-2.43616858946494E-07"
-            ixz="-6.37789906117123E-09"
-            iyy="2.8270243746167E-06"
-            iyz="-5.37200748039765E-07"
-            izz="2.83695868220296E-05" />
+        <origin xyz="0.03332 0 0.0379" rpy="0 0 0" />
+        <mass value="0.04476" />
+        <inertia ixx="28054E-9" ixy="0" ixz="-19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -116,6 +97,12 @@
           <color rgba="0.1 0.1 0.1 1" />
         </material>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_left_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
     </link>
     <gazebo reference="left_inner_knuckle">
       <material>Gazebo/Black</material>
@@ -124,15 +111,9 @@
 
     <link name="right_inner_knuckle">
       <inertial>
-        <origin xyz="0.000123011831763771 0.0507850843201817 0.00103968640075166" rpy="0 0 0" />
-        <mass value="0.0271177346495152" />
-        <inertia
-            ixx="2.61910379223783E-05"
-            ixy="-2.43616858946494E-07"
-            ixz="-6.37789906117123E-09"
-            iyy="2.8270243746167E-06"
-            iyz="-5.37200748039765E-07"
-            izz="2.83695868220296E-05" />
+        <origin xyz="-0.03332 0 0.0379" rpy="0 0 0" />
+        <mass value="0.04476" />
+        <inertia ixx="28054E-9" ixy="0" ixz="19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -143,7 +124,12 @@
           <color rgba="0.1 0.1 0.1 1" />
         </material>
       </visual>
-
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://robotiq_140_gripper_description/meshes/robotiq_140_right_inner_knuckle.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
     </link>
     <gazebo reference="right_inner_knuckle">
       <material>Gazebo/Black</material>
@@ -152,15 +138,9 @@
 
     <link name="left_inner_finger">
       <inertial>
-        <origin xyz="0.0 0.031506174 -0.017648840" rpy="0 0 0" />
-        <mass value="0.0104003125914103" />
-        <inertia
-            ixx="2.71909453810972E-06"
-            ixy="1.35402465472579E-21"
-            ixz="-7.1817349065269E-22"
-            iyy="7.69100314106116E-07"
-            iyz="6.74715432769696E-07"
-            izz="2.30315190420171E-06" />
+        <origin xyz="-0.01563 0 0.02522" rpy="0 0 0" />
+        <mass value="0.045" />
+        <inertia ixx="26663E-9" ixy="0" ixz="5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -185,15 +165,9 @@
 
     <link name="right_inner_finger">
       <inertial>
-        <origin xyz="0.0 0.031506174 -0.017648840" rpy="0 0 0" />
-        <mass value="0.0104003125914103" />
-        <inertia
-            ixx="2.71909453810972E-06"
-            ixy="1.35402465472579E-21"
-            ixz="-7.1817349065269E-22"
-            iyy="7.69100314106116E-07"
-            iyz="6.74715432769696E-07"
-            izz="2.30315190420171E-06" />
+        <origin xyz="0.01563 0 0.02522" rpy="0 0 0" />
+        <mass value="0.045" />
+        <inertia ixx="26663E-9" ixy="0" ixz="-5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -218,15 +192,9 @@
 
     <link name="left_outer_finger">
       <inertial>
-        <origin xyz="0.00030115855001899 0.0373907951953854 -0.0208027427000385" rpy="0 0 0" />
-        <mass value="0.022614240507152" />
-        <inertia
-            ixx="1.52518312458174E-05"
-            ixy="9.76583423954399E-10"
-            ixz="-5.43838577022588E-10"
-            iyy="6.17694243867776E-06"
-            iyz="6.78636130740228E-06"
-            izz="1.16494917907219E-05" />
+        <origin xyz="0.01482 0 0.03451" rpy="0 0 0" />
+        <mass value="0.07637" />
+        <inertia ixx="45513E-9" ixy="0" ixz="-20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -246,20 +214,14 @@
     </link>
     <gazebo reference="left_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="right_outer_finger">
       <inertial>
-        <origin xyz="0.00030115855001899 0.0373907951953854 -0.0208027427000385" rpy="0 0 0" />
-        <mass value="0.022614240507152" />
-        <inertia
-            ixx="1.52518312458174E-05"
-            ixy="9.76583423954399E-10"
-            ixz="-5.43838577022588E-10"
-            iyy="6.17694243867776E-06"
-            iyz="6.78636130740228E-06"
-            izz="1.16494917907219E-05" />
+        <origin xyz="-0.01482 0 0.03451" rpy="0 0 0" />
+        <mass value="0.07637" />
+        <inertia ixx="45513E-9" ixy="0" ixz="20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -279,7 +241,7 @@
     </link>
     <gazebo reference="right_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <joint name="robotiq_arg2f_base_to_left_outer_knuckle" type="revolute">
@@ -287,7 +249,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_outer_knuckle" />
       <axis xyz="0 -1 0" />
-      <limit lower="0" upper="0.78574722925"  velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925"  velocity="2.0" effort="18.65" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -296,7 +258,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_outer_knuckle" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925" velocity="3.54" effort="18.65" />
     </joint>
 
     <joint name="robotiq_arg2f_base_to_left_inner_knuckle" type="revolute">
@@ -304,7 +266,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="left_inner_knuckle" />
       <axis xyz="0 -1 0" />
-      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925" velocity="3.54" effort="18.65" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -313,7 +275,7 @@
       <parent link="robotiq_arg2f_base_link" />
       <child link="right_inner_knuckle" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925" velocity="3.54" effort="18.65" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -334,7 +296,7 @@
       <parent link="left_outer_finger" />
       <child link="left_inner_finger" />
       <axis xyz="0 1 0" />
-      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925" velocity="3.54" effort="18.65" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -343,7 +305,7 @@
       <parent link="right_outer_finger" />
       <child link="right_inner_finger" />
       <axis xyz="0 -1 0" />
-      <limit lower="0" upper="0.78574722925" velocity="2.0" effort="1000" />
+      <limit lower="0" upper="0.78574722925" velocity="3.54" effort="18.65" />
       <mimic joint="joint_finger" multiplier="1" offset="0"/>
     </joint>
 
@@ -357,8 +319,8 @@
           <limit>
             <lower>0</lower>
             <upper>0.78574722925</upper>
-            <velocity>2.0</velocity>
-            <effort>1000</effort>
+            <velocity>3.54</velocity>
+            <effort>18.65</effort>
           </limit>
         </axis>
       </joint>
@@ -372,18 +334,22 @@
           <limit>
             <lower>0</lower>
             <upper>0.78574722925</upper>
-            <velocity>2.0</velocity>
-            <effort>1000</effort>
+            <velocity>3.54</velocity>
+            <effort>18.65</effort>
           </limit>
         </axis>
       </joint>
 
       <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
+        <kp>1000</kp>
+        <ki>0.1</ki>
+        <kd>0.01</kd>
         <joint>robotiq_arg2f_base_to_left_inner_knuckle</joint>
         <joint>robotiq_arg2f_base_to_left_outer_knuckle</joint>
         <joint>robotiq_arg2f_base_to_right_inner_knuckle</joint>
         <joint>joint_finger</joint>
       </plugin>
+
       <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
         <ros>
           <argument>~/out:=joint_states</argument>
@@ -392,6 +358,5 @@
         <joint_name>joint_finger</joint_name>
       </plugin>
     </gazebo>
-
   </xacro:macro>
 </robot>
