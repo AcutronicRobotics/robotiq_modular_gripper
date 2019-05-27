@@ -25,14 +25,14 @@
     </link>
     <gazebo reference="robotiq_arg2f_base_link">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="left_outer_knuckle">
       <inertial>
         <origin xyz="0.01616 0 -0.00133" rpy="0 0 0" />
         <mass value="0.0131" />
-        <inertia ixx="325.5E-9" ixy="0" ixz="-197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
+        <inertia ixx="325.5E-9" ixy="0" ixz="197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -52,14 +52,14 @@
     </link>
     <gazebo reference="left_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="right_outer_knuckle">
       <inertial>
         <origin xyz="-0.01616 0 -0.00133" rpy="0 0 0" />
         <mass value="0.0131" />
-        <inertia ixx="325.5E-9" ixy="0" ixz="197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
+        <inertia ixx="325.5E-9" ixy="0" ixz="-197.94E-9" iyy="2306.36E-9" iyz="0" izz="2176E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -79,14 +79,14 @@
     </link>
     <gazebo reference="right_outer_knuckle">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="left_inner_knuckle">
       <inertial>
         <origin xyz="0.03332 0 0.0379" rpy="0 0 0" />
         <mass value="0.04476" />
-        <inertia ixx="28054E-9" ixy="0" ixz="19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
+        <inertia ixx="28054E-9" ixy="0" ixz="-19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -113,7 +113,7 @@
       <inertial>
         <origin xyz="-0.03332 0 0.0379" rpy="0 0 0" />
         <mass value="0.04476" />
-        <inertia ixx="28054E-9" ixy="0" ixz="-19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
+        <inertia ixx="28054E-9" ixy="0" ixz="19174E-9" iyy="39758E-9" iyz="0" izz="23453E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -140,7 +140,7 @@
       <inertial>
         <origin xyz="-0.01563 0 0.02522" rpy="0 0 0" />
         <mass value="0.045" />
-        <inertia ixx="26663E-9" ixy="0" ixz="-5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
+        <inertia ixx="26663E-9" ixy="0" ixz="5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -167,7 +167,7 @@
       <inertial>
         <origin xyz="0.01563 0 0.02522" rpy="0 0 0" />
         <mass value="0.045" />
-        <inertia ixx="26663E-9" ixy="0" ixz="5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
+        <inertia ixx="26663E-9" ixy="0" ixz="-5579E-9" iyy="28009E-9" iyz="0" izz="4368E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -194,7 +194,7 @@
       <inertial>
         <origin xyz="0.01482 0 0.03451" rpy="0 0 0" />
         <mass value="0.07637" />
-        <inertia ixx="45513E-9" ixy="0" ixz="20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
+        <inertia ixx="45513E-9" ixy="0" ixz="-20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -214,14 +214,14 @@
     </link>
     <gazebo reference="left_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="right_outer_finger">
       <inertial>
         <origin xyz="-0.01482 0 0.03451" rpy="0 0 0" />
         <mass value="0.07637" />
-        <inertia ixx="45513E-9" ixy="0" ixz="-20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
+        <inertia ixx="45513E-9" ixy="0" ixz="20691E-9" iyy="52570E-9" iyz="0" izz="17804E-9" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -241,7 +241,7 @@
     </link>
     <gazebo reference="right_outer_finger">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <joint name="robotiq_arg2f_base_to_left_outer_knuckle" type="revolute">
