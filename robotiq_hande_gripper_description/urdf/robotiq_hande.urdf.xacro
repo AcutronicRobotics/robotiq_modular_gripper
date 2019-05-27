@@ -25,7 +25,7 @@
     </link>
     <gazebo reference="robotiq_hande_base_link">
       <material>Gazebo/Black</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="left_finger">
@@ -52,7 +52,7 @@
     </link>
     <gazebo reference="left_finger">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <link name="right_finger">
@@ -79,7 +79,7 @@
     </link>
     <gazebo reference="right_finger">
       <material>Gazebo/Grey</material>
-      <selfCollide>False</selfCollide>
+      <selfCollide>True</selfCollide>
     </gazebo>
 
     <joint name="joint_finger" type="prismatic">
