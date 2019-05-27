@@ -18,28 +18,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_index_cpp REQUIRED)
-find_package(gazebo_dev REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(hrim_actuator_gripper_msgs REQUIRED)
 find_package(hrim_actuator_gripper_srvs REQUIRED)
-find_package(hrim_generic_srvs REQUIRED)
-find_package(hrim_generic_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
 
 include_directories(include
-  ${gazebo_dev_INCLUDE_DIRS}
   ${gazebo_ros_INCLUDE_DIRS}
-  ${tf2_ros_INCLUDE_DIRS}
-  ${tf2_INCLUDE_DIRS}
-  ${tf2_geometry_msgs_INCLUDE_DIRS}
   ${hrim_actuator_gripper_msgs_INCLUDE_DIRS}
   ${hrim_actuator_gripper_srvs_INCLUDE_DIRS}
-  ${hrim_generic_msgs_INCLUDE_DIRS}
-  ${hrim_generic_srvs_INCLUDE_DIRS}
 )
 link_directories(${gazebo_dev_LIBRARY_DIRS})
 
@@ -49,24 +36,16 @@ add_library(robotiq_gripper_gazebo_plugin SHARED
 )
 
 ament_target_dependencies(robotiq_gripper_gazebo_plugin
-  "gazebo_dev"
   "gazebo_ros"
   "rclcpp"
-  "tf2"
-  "tf2_geometry_msgs"
-  "tf2_ros"
   "hrim_actuator_gripper_msgs"
   "hrim_actuator_gripper_srvs"
-  "hrim_generic_srvs"
-  "hrim_generic_msgs"
-  "ament_index_cpp"
 )
 
 ament_export_libraries(robotiq_gripper_gazebo_plugin)
 
 ament_export_include_directories(include)
 ament_export_dependencies(rclcpp)
-ament_export_dependencies(gazebo_dev)
 ament_export_dependencies(gazebo_ros)
 
 ament_package()
