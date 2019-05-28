@@ -17,7 +17,7 @@ namespace gazebo{
     if(this->model->GetName() == "hande")
       target = request->goal_linearposition;
 
-    else if(this->model->GetName() == "robotiq85" || this->model->GetName() == "robotiq_140")
+    else if(this->model->GetName() == "robotiq_85" || this->model->GetName() == "robotiq_140")
       target = request->goal_angularposition;
 
     if(target < 0.0){
