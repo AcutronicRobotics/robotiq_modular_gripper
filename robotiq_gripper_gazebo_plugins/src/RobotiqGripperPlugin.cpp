@@ -11,24 +11,81 @@ namespace gazebo{
   RobotiqGripperPlugin::~RobotiqGripperPlugin(){
   }
 
-  void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response){
-    (void)request_header;
+  void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header,
+                                             const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
+                                             std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response){
+    if(!executing_joints){
+      (void)request_header;
 
-    if(this->model->GetName() == "hande")
-      target = request->goal_linearposition;
+      // Pose control
+      if(this->model->GetName() == "hande")
+        target_pose = request->goal_linearposition;
 
-    else if(this->model->GetName() == "robotiq_85" || this->model->GetName() == "robotiq_140")
-      target = request->goal_angularposition;
+      else if(this->model->GetName() == "robotiq_85" || this->model->GetName() == "robotiq_140")
+        target_pose = request->goal_angularposition;
 
-    if(target < 0.0){
-      target = 0.0;
-      RCLCPP_INFO(node->get_logger(), "goal changed to its minimum value: 0.0");
+      if(target_pose < 0.0){
+        target_pose = 0.0;
+        RCLCPP_INFO(node->get_logger(), "goal changed to its minimum value: 0.0");
+      }
+      else if(target_pose > jointsVec[0]->UpperLimit(0)){
+        target_pose = jointsVec[0]->UpperLimit(0);
+        RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", jointsVec[0]->UpperLimit(0));
+      }
+
+      // Invert pose meaning
+      target_pose = jointsVec[0]->UpperLimit(0) - target_pose;
+
+      // Speed control
+      if(this->model->GetName() == "hande"){
+        if (request->goal_velocity >= MinVelocity_s50 && request->goal_velocity <= MaxVelocity_s50){
+          target_velocity = request->goal_velocity;
+        }else{
+          target_velocity = MinVelocity_s50;
+        }
+      }else if(this->model->GetName() == "robotiq_85"){
+        if (request->goal_velocity >= MinVelocity_s85 && request->goal_velocity <= MaxVelocity_s85){
+          target_velocity = request->goal_velocity / radius_s85;
+        }else{
+          target_velocity = MinVelocity_s85 / radius_s85;
+        }
+      }else if(this->model->GetName() == "robotiq_140"){
+        if (request->goal_velocity >= MinVelocity_s140 && request->goal_velocity <= MaxVelocity_s140){
+          target_velocity = request->goal_velocity / radius_s140;
+        }else{
+          target_velocity = MinVelocity_s140 / radius_s140;
+        }
+      }
+      std::cout << "\n target_velocity:" <<std::endl;
+      std::cout << target_velocity <<std::endl;
+
+      double current_pose_rad = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
+      double start_time = 0;
+      std::cout << "\n Gripper_service prints:" <<std::endl;
+      std::cout << current_pose_rad <<std::endl;
+      std::cout << target_pose <<std::endl;
+      //std::cout << MaxVelocity <<std::endl;
+
+      double end_time = fabs(current_pose_rad - target_pose) / target_velocity;
+      //std::cout << end_time <<std::endl;
+
+      std::vector<double> X(2), Y_pos(2);
+      X[0] = start_time;
+      X[1] = end_time;
+      Y_pos[0] = current_pose_rad;
+      Y_pos[1] = target_pose;
+
+      tk::spline interpolation_linear_pos;
+      if(!interpolation_linear_pos.set_points(X, Y_pos))
+        return;
+
+      interpolated_targetJoint.clear();
+      for(double t = start_time; t < end_time; t+=0.001 ){
+        interpolated_targetJoint.push_back(interpolation_linear_pos(t));
+      }
+
+      response->goal_accepted = true;
     }
-    else if(target > jointsVec[0]->UpperLimit(0)){
-      target = jointsVec[0]->UpperLimit(0);
-      RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", jointsVec[0]->UpperLimit(0));
-    }
-    response->goal_accepted = true;
   }
 
   void RobotiqGripperPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf){
@@ -83,11 +140,22 @@ namespace gazebo{
       return;
     }
     else
-      target = jointsVec[0]->UpperLimit(0);
+      targetJoint = 0;
+
+    interpolated_targetJoint.clear();
+    executing_joints = false;
+    index_executing_joints = 0;
 
     this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin( boost::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
 
     UpdateJointPIDs();
+  }
+
+  void RobotiqGripperPlugin::Reset()
+  {
+    interpolated_targetJoint.clear();
+    targetJoint = 0;
+    executing_joints = false;
   }
 
   void RobotiqGripperPlugin::createTopicAndService(std::string node_name){
@@ -100,7 +168,10 @@ namespace gazebo{
 
     std::string fingercontrol = std::string(node_name) + "/fingercontrol";
     RCUTILS_LOG_INFO_NAMED(node->get_name(), "creating %s service ", fingercontrol.c_str());
-    std::function<void( std::shared_ptr<rmw_request_id_t>, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = std::bind( &RobotiqGripperPlugin::gripper_service, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+    std::function<void(std::shared_ptr<rmw_request_id_t>,
+                       const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>,
+                       std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = \
+                       std::bind(&RobotiqGripperPlugin::gripper_service, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     fingercontrolService = node->create_service<hrim_actuator_gripper_srvs::srv::ControlFinger>(fingercontrol, cb_fingercontrol_function);
   }
 
@@ -123,12 +194,27 @@ namespace gazebo{
 
   void RobotiqGripperPlugin::UpdateJointPIDs(){
     for(auto &joint : this->jointsVec)
-      this->model->GetJointController()->SetPositionPID(joint->GetScopedName(), common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
+      this->model->GetJointController()->SetPositionPID(joint->GetScopedName(),
+        common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
   }
 
   void RobotiqGripperPlugin::UpdatePIDControl(){
+    if(!executing_joints && interpolated_targetJoint.size()>0){
+      index_executing_joints = 0;
+      executing_joints = true;
+    }
+    if(executing_joints){
+      targetJoint = interpolated_targetJoint[index_executing_joints];
+      index_executing_joints++;
+      if(index_executing_joints==interpolated_targetJoint.size()){
+        executing_joints = false;
+        interpolated_targetJoint.clear();
+        index_executing_joints = 0;
+      }
+    }
     for(auto &joint : this->jointsVec)
-      this->model->GetJointController()->SetPositionTarget(joint->GetScopedName(), (joint->UpperLimit(0) - target) * joint_multipliers_[joint->GetScopedName()]);
+      this->model->GetJointController()->SetPositionTarget(joint->GetScopedName(),
+        targetJoint * joint_multipliers_[joint->GetScopedName()]);
   }
 
   GZ_REGISTER_MODEL_PLUGIN(RobotiqGripperPlugin)

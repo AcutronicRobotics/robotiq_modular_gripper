@@ -28,6 +28,9 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo_ros/node.hpp>
 
+// Spline (interpolation)
+#include <robotiq_gripper_gazebo_plugins/spline.hpp>
+
 // HRIM
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/control_finger.hpp>
@@ -53,7 +56,8 @@ namespace gazebo
       std::vector<physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
-      double target;
+      double target_pose;
+      double target_velocity;
       double kp = 400.0;
       double ki = 1;
       double kd = 0.01;
@@ -61,6 +65,19 @@ namespace gazebo
       double imax = 0.0;
       double cmdmin = -10.0;
       double cmdmax = 10.0;
+
+      // S140 values. Min and max joint speed in rad/s. Values:  30 to 250 mm/s
+      const double MinVelocity_s140 = 30; //1.6;
+      const double MaxVelocity_s140 = 250; //0.19;
+      const double radius_s140 = 156; //mm
+      // S85 values. Min and max joint speed in rad/s. Values:  20 to 150 mm/s
+      const double MinVelocity_s85 = 20; //1.5;
+      const double MaxVelocity_s85 = 150;// 0.2;
+      const double radius_s85 = 100; //mm
+      // S50 values. Min and max joint speed in rad/s. Values:  20 to 150 mm/s
+      const double MinVelocity_s50 = 20;
+      const double MaxVelocity_s50 = 150;
+
 
       void createTopicAndService(std::string node_name);
       void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
@@ -73,6 +90,14 @@ namespace gazebo
       ~RobotiqGripperPlugin();
 
       void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf);
+      void Reset();
+
+      // Interpolation
+      std::vector<float> interpolated_targetJoint;
+      double current_pose_rad = 0.0;
+      bool executing_joints;
+      unsigned int index_executing_joints;
+      double targetJoint  = 0.0;
   };
 }
 #endif
