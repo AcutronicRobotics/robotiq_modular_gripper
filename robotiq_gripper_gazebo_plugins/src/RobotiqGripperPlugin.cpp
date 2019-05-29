@@ -41,21 +41,33 @@ namespace gazebo{
       if(this->model->GetName() == "hande"){
         if (request->goal_velocity >= MinVelocity_s50 && request->goal_velocity <= MaxVelocity_s50){
           target_velocity = request->goal_velocity;
-        }else{
+        }else if (request->goal_velocity < MinVelocity_s50){
           target_velocity = MinVelocity_s50;
+          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s50);
+        }else if (request->goal_velocity > MaxVelocity_s50){
+          target_velocity = MaxVelocity_s50;
+          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s50);
         }
         target_velocity *= 0.001; // to m/s
       }else if(this->model->GetName() == "robotiq_85"){
         if (request->goal_velocity >= MinVelocity_s85 && request->goal_velocity <= MaxVelocity_s85){
           target_velocity = request->goal_velocity / radius_s85;
-        }else{
+        }else if (request->goal_velocity < MinVelocity_s85){
           target_velocity = MinVelocity_s85 / radius_s85;
+          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s85);
+        }else if (request->goal_velocity > MaxVelocity_s85){
+          target_velocity = MaxVelocity_s85 / radius_s85;
+          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s85);
         }
       }else if(this->model->GetName() == "robotiq_140"){
         if (request->goal_velocity >= MinVelocity_s140 && request->goal_velocity <= MaxVelocity_s140){
           target_velocity = request->goal_velocity / radius_s140;
-        }else{
+        }else if (request->goal_velocity < MinVelocity_s140){
           target_velocity = MinVelocity_s140 / radius_s140;
+          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s140);
+        }else if (request->goal_velocity > MaxVelocity_s140){
+          target_velocity = MaxVelocity_s140 / radius_s140;
+          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s140);
         }
       }
 
