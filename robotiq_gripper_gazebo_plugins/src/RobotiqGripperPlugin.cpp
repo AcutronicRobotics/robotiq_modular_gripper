@@ -73,7 +73,7 @@ namespace gazebo{
 
       double current_pose = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
       double start_time = 0;
-      // ATENTION! Same formula is used for both angular and linear movement grippers. Meaning the values in the formula sometimes contain radians, other times meters.
+      // ATTENTION! Same formula is used for both angular and linear movement grippers. Meaning the values in the formula sometimes contain radians, other times meters.
       double end_time = fabs(current_pose - target_pose) / target_velocity;
 
       std::vector<double> X(2), Y_pos(2);
