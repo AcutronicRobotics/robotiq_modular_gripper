@@ -66,15 +66,15 @@ namespace gazebo
       double cmdmin = -10.0;
       double cmdmax = 10.0;
 
-      // S140 values. Min and max joint speed in rad/s. Values:  30 to 250 mm/s
+      // S140 values. Min and max joint speed values:  30 to 250 mm/s
       const double MinVelocity_s140 = 30; //1.6;
       const double MaxVelocity_s140 = 250; //0.19;
       const double radius_s140 = 156; //mm
-      // S85 values. Min and max joint speed in rad/s. Values:  20 to 150 mm/s
+      // S85 values. Min and max joint speed values:  20 to 150 mm/s
       const double MinVelocity_s85 = 20; //1.5;
       const double MaxVelocity_s85 = 150;// 0.2;
       const double radius_s85 = 100; //mm
-      // S50 values. Min and max joint speed in rad/s. Values:  20 to 150 mm/s
+      // S50 values. Min and max joint speed values:  20 to 150 mm/s
       const double MinVelocity_s50 = 20;
       const double MaxVelocity_s50 = 150;
 

@@ -18,23 +18,24 @@ namespace gazebo{
       (void)request_header;
 
       // Pose control
-      if(this->model->GetName() == "hande")
-        target_pose = request->goal_linearposition;
+      double upper_limit = jointsVec[0]->UpperLimit(0);
 
-      else if(this->model->GetName() == "robotiq_85" || this->model->GetName() == "robotiq_140")
+      if(this->model->GetName() == "hande"){
+        target_pose = request->goal_linearposition;
+      }else if(this->model->GetName() == "robotiq_85" || this->model->GetName() == "robotiq_140"){
         target_pose = request->goal_angularposition;
+      }
 
       if(target_pose < 0.0){
         target_pose = 0.0;
         RCLCPP_INFO(node->get_logger(), "goal changed to its minimum value: 0.0");
-      }
-      else if(target_pose > jointsVec[0]->UpperLimit(0)){
-        target_pose = jointsVec[0]->UpperLimit(0);
-        RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", jointsVec[0]->UpperLimit(0));
+      }else if(target_pose > upper_limit){
+        target_pose = upper_limit;
+        RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", upper_limit);
       }
 
       // Invert pose meaning
-      target_pose = jointsVec[0]->UpperLimit(0) - target_pose;
+      target_pose = upper_limit - target_pose;
 
       // Speed control
       if(this->model->GetName() == "hande"){
@@ -43,6 +44,7 @@ namespace gazebo{
         }else{
           target_velocity = MinVelocity_s50;
         }
+        target_velocity *= 0.001; // to m/s
       }else if(this->model->GetName() == "robotiq_85"){
         if (request->goal_velocity >= MinVelocity_s85 && request->goal_velocity <= MaxVelocity_s85){
           target_velocity = request->goal_velocity / radius_s85;
@@ -56,23 +58,16 @@ namespace gazebo{
           target_velocity = MinVelocity_s140 / radius_s140;
         }
       }
-      std::cout << "\n target_velocity:" <<std::endl;
-      std::cout << target_velocity <<std::endl;
 
-      double current_pose_rad = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
+      double current_pose = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
       double start_time = 0;
-      std::cout << "\n Gripper_service prints:" <<std::endl;
-      std::cout << current_pose_rad <<std::endl;
-      std::cout << target_pose <<std::endl;
-      //std::cout << MaxVelocity <<std::endl;
-
-      double end_time = fabs(current_pose_rad - target_pose) / target_velocity;
-      //std::cout << end_time <<std::endl;
+      // ATENTION! Same formula is used for both angular and linear movement grippers. Meaning the values in the formula sometimes contain radians, other times meters.
+      double end_time = fabs(current_pose - target_pose) / target_velocity;
 
       std::vector<double> X(2), Y_pos(2);
       X[0] = start_time;
       X[1] = end_time;
-      Y_pos[0] = current_pose_rad;
+      Y_pos[0] = current_pose;
       Y_pos[1] = target_pose;
 
       tk::spline interpolation_linear_pos;
