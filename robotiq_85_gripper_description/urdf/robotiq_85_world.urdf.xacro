@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotiq_85" >
+  <xacro:include filename="$(find robotiq_85_gripper_description)/urdf/robotiq_85.urdf.xacro" />
+  <xacro:robotiq_85 prefix="robotiq85"/>
+
+  <link name="world" />
+
+  <joint name="world_to_robotiq_arg2f_base" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="world"/>
+    <child link="robotiq_arg2f_base_link"/>
+  </joint>
+</robot>
