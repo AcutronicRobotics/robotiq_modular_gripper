@@ -14,11 +14,17 @@ namespace gazebo{
   void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response){
     (void)request_header;
 
-    if(this->model->GetName() == "hande")
+    if((int)this->joint_type == 1088){
+      // prismatic
       target = request->goal_linearposition;
-
-    else if(this->model->GetName() == "robotiq85" || this->model->GetName() == "robotiq_140")
+    }
+    else if((int)this->joint_type == 576){
+      // revolute
       target = request->goal_angularposition;
+    }
+    else{
+      RCLCPP_ERROR(node->get_logger(), "joint_finger type not supported");
+    }
 
     if(target < 0.0){
       target = 0.0;
@@ -64,6 +70,10 @@ namespace gazebo{
       auto joint_name = joint_elem->Get<std::string>();
       auto joint = model->GetJoint(joint_name);
 
+      if(joint_name == "joint_finger"){
+        this->joint_type = this->model->GetJoint("joint_finger")->GetType();
+      }
+
       if(!joint){
         gzthrow("Could not find " + joint_name + " joint\n");
       }
@@ -75,6 +85,10 @@ namespace gazebo{
         jointsVec.push_back(joint);
       }
       joint_elem = joint_elem->GetNextElement("joint");
+    }
+
+    if((int)this->joint_type == -1){
+      RCLCPP_ERROR(node->get_logger(), "joint_finger is missing, the gripper will not work");
     }
 
     if(jointsVec.empty()){
@@ -110,13 +124,18 @@ namespace gazebo{
     fingerstateMsg.header.stamp.sec = cur_time.sec;
     fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
 
-    if(this->model->GetName() == "hande"){
+    if((int)this->joint_type == 1088){
+      // prismatic
       fingerstateMsg.linear_position = jointsVec.front()->Position(0);
       fingerstateMsg.angular_position = 0;
     }
-    else{
+    else if((int)this->joint_type == 576){
+      // revolute
       fingerstateMsg.linear_position = 0;
       fingerstateMsg.angular_position = jointsVec.front()->Position(0);
+    }
+    else{
+      RCLCPP_ERROR(node->get_logger(), "(fingerstate_msgs) joint_finger type not supported");
     }
     fingerstatePublisher->publish(fingerstateMsg);
   }

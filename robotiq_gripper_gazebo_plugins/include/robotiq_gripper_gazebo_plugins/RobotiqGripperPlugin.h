@@ -53,6 +53,8 @@ namespace gazebo
       std::vector<physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
+      unsigned int joint_type = (unsigned int)-1;
+
       double target;
       double kp = 400.0;
       double ki = 1;
