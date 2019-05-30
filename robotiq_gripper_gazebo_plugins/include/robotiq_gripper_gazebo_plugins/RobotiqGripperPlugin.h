@@ -58,6 +58,9 @@ namespace gazebo
 
       double target_pose;
       double target_velocity;
+
+      unsigned int joint_type = (unsigned int)-1;
+
       double kp = 400.0;
       double ki = 1;
       double kd = 0.01;
