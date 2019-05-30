@@ -325,6 +325,7 @@
       </axis>
     </joint>
     <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
+      <id>140</id>
       <kp>1000</kp>
       <ki>0.1</ki>
       <kd>0.01</kd>

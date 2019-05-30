@@ -66,6 +66,9 @@ namespace gazebo
       double cmdmin = -10.0;
       double cmdmax = 10.0;
 
+      // Identification numbre of the gripper, options: 140 (S140), 85 (S85), 50 (S50 or Hand-E)
+      int gripper_id;
+
       // S140 values. Min and max joint speed values:  30 to 250 mm/s
       const double MinVelocity_s140 = 30; //1.6;
       const double MaxVelocity_s140 = 250; //0.19;

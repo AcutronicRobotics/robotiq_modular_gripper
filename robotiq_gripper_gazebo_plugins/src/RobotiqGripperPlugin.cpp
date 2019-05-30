@@ -38,7 +38,7 @@ namespace gazebo{
       target_pose = upper_limit - target_pose;
 
       // Speed control
-      if(this->model->GetName() == "hande"){
+      if(gripper_id == 50){
         if (request->goal_velocity >= MinVelocity_s50 && request->goal_velocity <= MaxVelocity_s50){
           target_velocity = request->goal_velocity;
         }else if (request->goal_velocity < MinVelocity_s50){
@@ -49,7 +49,7 @@ namespace gazebo{
           RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s50);
         }
         target_velocity *= 0.001; // to m/s
-      }else if(this->model->GetName() == "robotiq_85"){
+      }else if(gripper_id == 85){
         if (request->goal_velocity >= MinVelocity_s85 && request->goal_velocity <= MaxVelocity_s85){
           target_velocity = request->goal_velocity / radius_s85;
         }else if (request->goal_velocity < MinVelocity_s85){
@@ -59,7 +59,7 @@ namespace gazebo{
           target_velocity = MaxVelocity_s85 / radius_s85;
           RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s85);
         }
-      }else if(this->model->GetName() == "robotiq_140"){
+      }else if(gripper_id == 140){
         if (request->goal_velocity >= MinVelocity_s140 && request->goal_velocity <= MaxVelocity_s140){
           target_velocity = request->goal_velocity / radius_s140;
         }else if (request->goal_velocity < MinVelocity_s140){
@@ -116,6 +116,14 @@ namespace gazebo{
 
     createTopicAndService(node_name);
 
+    if(this->sdf->HasElement("id")){
+       this->gripper_id = this->sdf->GetElement("id")->Get<int>();
+    }else{
+      RCLCPP_ERROR(node->get_logger(), "No id element.");
+      node.reset();
+      return;
+    }
+
     if(this->sdf->HasElement("kp"))
       this->kp = this->sdf->GetElement("kp")->Get<double>();
     if(this->sdf->HasElement("ki"))
@@ -146,8 +154,9 @@ namespace gazebo{
       node.reset();
       return;
     }
-    else
+    else{
       targetJoint = 0;
+    }
 
     interpolated_targetJoint.clear();
     executing_joints = false;
