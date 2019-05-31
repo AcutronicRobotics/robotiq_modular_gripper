@@ -2,13 +2,13 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotiq_hande" >
   <!-- robotiq_hande_gripper -->
   <xacro:include filename="$(find robotiq_hande_gripper_description)/urdf/robotiq_hande.urdf.xacro" />
-  <xacro:robotiq_hande prefix="hande" MAC="_000000000004"/>
+  <xacro:robotiq_hande prefix="hande_" MAC="_000000000004"/>
 
   <link name="world" />
 
   <joint name="world_to_robotiq_adapter" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.5"/>
     <parent link="world"/>
-    <child link="robotiq_hande_base_link"/>
+    <child link="hande_robotiq_hande_base_link"/>
   </joint>
 </robot>
