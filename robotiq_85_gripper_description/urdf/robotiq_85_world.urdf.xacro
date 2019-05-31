@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotiq_85" >
   <xacro:include filename="$(find robotiq_85_gripper_description)/urdf/robotiq_85.urdf.xacro" />
-  <xacro:robotiq_85 prefix="robotiq85"/>
+  <xacro:robotiq_85 prefix="robotiq85" MAC="_000000000004"/>
 
   <link name="world" />
 
