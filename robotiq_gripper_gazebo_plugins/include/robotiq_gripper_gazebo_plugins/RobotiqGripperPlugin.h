@@ -69,21 +69,10 @@ namespace gazebo
       double cmdmin = -10.0;
       double cmdmax = 10.0;
 
-      // Identification numbre of the gripper, options: 140 (S140), 85 (S85), 50 (S50 or Hand-E)
-      int gripper_id;
-
-      // S140 values. Min and max joint speed values:  30 to 250 mm/s
-      const double MinVelocity_s140 = 30; //1.6;
-      const double MaxVelocity_s140 = 250; //0.19;
-      const double radius_s140 = 156; //mm
-      // S85 values. Min and max joint speed values:  20 to 150 mm/s
-      const double MinVelocity_s85 = 20; //1.5;
-      const double MaxVelocity_s85 = 150;// 0.2;
-      const double radius_s85 = 100; //mm
-      // S50 values. Min and max joint speed values:  20 to 150 mm/s
-      const double MinVelocity_s50 = 20;
-      const double MaxVelocity_s50 = 150;
-
+      // Min and max joint speed values and radius for revolute joint based grippers.
+      double MinVelocity; // mm/s
+      double MaxVelocity; // mm/s
+      double radius; // mm
 
       void createTopicAndService(std::string node_name);
       void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);

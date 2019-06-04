@@ -107,6 +107,8 @@
         <kd>9</kd>
         <joint>joint_finger</joint>
         <joint>robotiq_hande_base_to_right_finger</joint>
+        <min_velocity>20</min_velocity>
+        <max_velocity>150</max_velocity>
       </plugin>
       <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
         <ros>

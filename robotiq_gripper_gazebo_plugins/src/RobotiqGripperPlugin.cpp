@@ -42,36 +42,27 @@ namespace gazebo{
       target_pose = upper_limit - target_pose;
 
       // Speed control
-      if(gripper_id == 50){
-        if (request->goal_velocity >= MinVelocity_s50 && request->goal_velocity <= MaxVelocity_s50){
+      if((int)this->joint_type == 1088){ // prismatic (e.g. S50 gripper)
+        if (request->goal_velocity >= MinVelocity && request->goal_velocity <= MaxVelocity){
           target_velocity = request->goal_velocity;
-        }else if (request->goal_velocity < MinVelocity_s50){
-          target_velocity = MinVelocity_s50;
-          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s50);
-        }else if (request->goal_velocity > MaxVelocity_s50){
-          target_velocity = MaxVelocity_s50;
-          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s50);
+        }else if (request->goal_velocity < MinVelocity){
+          target_velocity = MinVelocity;
+          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
+        }else if (request->goal_velocity > MaxVelocity){
+          target_velocity = MaxVelocity;
+          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
         }
         target_velocity *= 0.001; // to m/s
-      }else if(gripper_id == 85){
-        if (request->goal_velocity >= MinVelocity_s85 && request->goal_velocity <= MaxVelocity_s85){
-          target_velocity = request->goal_velocity / radius_s85;
-        }else if (request->goal_velocity < MinVelocity_s85){
-          target_velocity = MinVelocity_s85 / radius_s85;
-          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s85);
-        }else if (request->goal_velocity > MaxVelocity_s85){
-          target_velocity = MaxVelocity_s85 / radius_s85;
-          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s85);
-        }
-      }else if(gripper_id == 140){
-        if (request->goal_velocity >= MinVelocity_s140 && request->goal_velocity <= MaxVelocity_s140){
-          target_velocity = request->goal_velocity / radius_s140;
-        }else if (request->goal_velocity < MinVelocity_s140){
-          target_velocity = MinVelocity_s140 / radius_s140;
-          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity_s140);
-        }else if (request->goal_velocity > MaxVelocity_s140){
-          target_velocity = MaxVelocity_s140 / radius_s140;
-          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity_s140);
+      }
+      else if((int)this->joint_type == 576){ // revolute (e.g. S140 and S85 grippers)
+        if (request->goal_velocity >= MinVelocity && request->goal_velocity <= MaxVelocity){
+          target_velocity = request->goal_velocity / radius;
+        }else if (request->goal_velocity < MinVelocity){
+          target_velocity = MinVelocity / radius;
+          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
+        }else if (request->goal_velocity > MaxVelocity){
+          target_velocity = MaxVelocity / radius;
+          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
         }
       }
 
@@ -120,20 +111,33 @@ namespace gazebo{
 
     createTopicAndService(node_name);
 
-    if(this->sdf->HasElement("id")){
-       this->gripper_id = this->sdf->GetElement("id")->Get<int>();
-    }else{
-      RCLCPP_ERROR(node->get_logger(), "No id element.");
-      node.reset();
-      return;
-    }
-
     if(this->sdf->HasElement("kp"))
       this->kp = this->sdf->GetElement("kp")->Get<double>();
     if(this->sdf->HasElement("ki"))
       this->ki = this->sdf->GetElement("ki")->Get<double>();
     if(this->sdf->HasElement("kd"))
       this->kd = this->sdf->GetElement("kd")->Get<double>();
+
+    // velocity related tags
+    if(this->sdf->HasElement("min_velocity")){
+      this->MinVelocity = this->sdf->GetElement("min_velocity")->Get<double>();
+    }else{
+      RCLCPP_ERROR(node->get_logger(), "No min_velocity element.");
+      node.reset();
+      return;
+    }
+    if(this->sdf->HasElement("max_velocity")){
+      this->MaxVelocity = this->sdf->GetElement("max_velocity")->Get<double>();
+    }else{
+      RCLCPP_ERROR(node->get_logger(), "No max_velocity element.");
+      node.reset();
+      return;
+    }
+    if(this->sdf->HasElement("radius")){
+      this->radius = this->sdf->GetElement("radius")->Get<double>();
+    }else{
+      RCLCPP_INFO(node->get_logger(), "No radius element found. Angular movement radius must be set for grippers with revolute joints.");
+    }
 
     sdf::ElementPtr joint_elem = this->sdf->GetElement("joint");
     while(joint_elem){
