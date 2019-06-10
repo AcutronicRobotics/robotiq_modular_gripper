@@ -32,10 +32,34 @@
 #include <robotiq_gripper_gazebo_plugins/spline.hpp>
 
 // HRIM
+#include <hrim_actuator_gripper_msgs/msg/state_gripper.hpp>
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
+#include <hrim_actuator_gripper_srvs/srv/specs_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/control_finger.hpp>
+#include "hrim_generic_srvs/srv/id.hpp"
+#include "hrim_generic_msgs/msg/status.hpp"
+#include "hrim_generic_msgs/msg/power.hpp"
+#include "hrim_generic_srvs/srv/simulation3_d.hpp"
+#include "hrim_generic_srvs/srv/simulation_urdf.hpp"
+#include "hrim_generic_srvs/srv/specs_communication.hpp"
+#include "hrim_generic_msgs/msg/state_communication.hpp"
 
 #include <boost/bind.hpp>
+
+#define MIN_FORCE 10
+#define MAX_FORCE 125
+
+#define MAX_PAYLOAD 2.5
+
+#define MIN_SPEED 30
+#define MAX_SPEED 250
+
+#define MAX_ACCELERATION 0
+
+#define MAX_LENGHT 209
+#define MAX_ANGLE 0.87
+
+#define REPEATABILITY 0.08
 
 using namespace std::chrono_literals;
 
@@ -50,6 +74,7 @@ namespace gazebo
       gazebo::event::ConnectionPtr updateConnection;
 
       std::shared_ptr<rclcpp::Publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>> fingerstatePublisher;
+      std::shared_ptr<rclcpp::Publisher<hrim_actuator_gripper_msgs::msg::StateGripper>> gripper_state_pub;
       std::shared_ptr<rclcpp::TimerBase> timer_fingerstate;
       rclcpp::Service<hrim_actuator_gripper_srvs::srv::ControlFinger>::SharedPtr fingercontrolService;
 
@@ -75,10 +100,59 @@ namespace gazebo
       double radius; // mm
 
       void createTopicAndService(std::string node_name);
-      void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
+      void createGenericTopics(std::string node_name);
+      void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header,
+        const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
+        std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
       void timer_fingerstate_msgs();
       void UpdatePIDControl();
       void UpdateJointPIDs();
+
+      rclcpp::Service<hrim_generic_srvs::srv::ID>::SharedPtr id_srv_;
+      rclcpp::Service<hrim_generic_srvs::srv::Simulation3D>::SharedPtr sim_3d_srv_;
+      rclcpp::Service<hrim_generic_srvs::srv::SimulationURDF>::SharedPtr sim_urdf_srv_;
+      rclcpp::Service<hrim_generic_srvs::srv::SpecsCommunication>::SharedPtr specs_comm_srv_;
+      rclcpp::Service<hrim_actuator_gripper_srvs::srv::ControlFinger>::SharedPtr srv_;
+      rclcpp::Service<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper>::SharedPtr specs_srv_;
+
+      std::shared_ptr<rclcpp::Publisher<hrim_generic_msgs::msg::Status>> status_pub;
+      std::shared_ptr<rclcpp::Publisher<hrim_generic_msgs::msg::Power>> power_pub;
+      std::shared_ptr<rclcpp::Publisher<hrim_generic_msgs::msg::StateCommunication>> state_comm_pub;
+
+      void timer_power_msgs();
+      void timer_status_msgs();
+      void timer_comm_msgs();
+      void timer_gripper_status_msgs();
+
+      std::shared_ptr<rclcpp::TimerBase> timer_status_;
+      std::shared_ptr<rclcpp::TimerBase> timer_gripper_status_;
+      std::shared_ptr<rclcpp::TimerBase> timer_power_;
+      std::shared_ptr<rclcpp::TimerBase> timer_comm_;
+
+      void SpecsCommunicationService(
+          const std::shared_ptr<rmw_request_id_t> request_header,
+          const std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Request> req,
+          std::shared_ptr<hrim_generic_srvs::srv::SpecsCommunication::Response> res);
+
+      void SpecsFingerGripperService(
+          const std::shared_ptr<rmw_request_id_t> request_header,
+          const std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Request> req,
+          std::shared_ptr<hrim_actuator_gripper_srvs::srv::SpecsFingerGripper::Response> res);
+
+      void IDService(
+          const std::shared_ptr<rmw_request_id_t> request_header,
+          const std::shared_ptr<hrim_generic_srvs::srv::ID::Request> req,
+          std::shared_ptr<hrim_generic_srvs::srv::ID::Response> res);
+
+      void Sim3DService(
+          const std::shared_ptr<rmw_request_id_t> request_header,
+          const std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Request> req,
+          std::shared_ptr<hrim_generic_srvs::srv::Simulation3D::Response> res);
+
+      void URDFService(
+          const std::shared_ptr<rmw_request_id_t> request_header,
+          const std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Request> req,
+          std::shared_ptr<hrim_generic_srvs::srv::SimulationURDF::Response> res);
 
     public:
       RobotiqGripperPlugin();
@@ -93,6 +167,7 @@ namespace gazebo
       bool executing_joints;
       unsigned int index_executing_joints;
       double targetJoint  = 0.0;
+
   };
 }
 #endif

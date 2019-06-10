@@ -22,12 +22,10 @@ find_package(gazebo_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(hrim_actuator_gripper_msgs REQUIRED)
 find_package(hrim_actuator_gripper_srvs REQUIRED)
+find_package(hrim_generic_srvs REQUIRED)
 
-include_directories(include
-  ${gazebo_ros_INCLUDE_DIRS}
-  ${hrim_actuator_gripper_msgs_INCLUDE_DIRS}
-  ${hrim_actuator_gripper_srvs_INCLUDE_DIRS}
-)
+include_directories(include)
+
 link_directories(${gazebo_dev_LIBRARY_DIRS})
 
 # robotiq finger gripper plugin
@@ -41,6 +39,7 @@ ament_target_dependencies(robotiq_gripper_gazebo_plugin
   "rclcpp"
   "hrim_actuator_gripper_msgs"
   "hrim_actuator_gripper_srvs"
+  hrim_generic_srvs
 )
 
 ament_export_libraries(robotiq_gripper_gazebo_plugin)

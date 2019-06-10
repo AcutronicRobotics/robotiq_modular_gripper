@@ -23,6 +23,7 @@
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>hrim_actuator_gripper_msgs</exec_depend>
   <exec_depend>hrim_actuator_gripper_srvs</exec_depend>
+  <exec_depend>hrim_generic_srvs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
