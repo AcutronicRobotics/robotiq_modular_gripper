@@ -134,9 +134,6 @@ namespace gazebo{
       fingerstateMsg.linear_position = 0;
       fingerstateMsg.angular_position = jointsVec.front()->Position(0);
     }
-    // else{
-    //   RCLCPP_ERROR(node->get_logger(), "(fingerstate_msgs) joint_finger type not supported");
-    // }
     fingerstatePublisher->publish(fingerstateMsg);
   }
 
