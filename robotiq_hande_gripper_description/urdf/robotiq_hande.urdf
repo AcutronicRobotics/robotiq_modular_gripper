@@ -99,7 +99,6 @@
   </joint>
   <gazebo>
     <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
-      <id>50</id>
       <kp>500</kp>
       <ki>3</ki>
       <kd>9</kd>
