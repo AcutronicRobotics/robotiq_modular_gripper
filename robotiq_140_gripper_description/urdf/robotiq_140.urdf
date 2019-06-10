@@ -333,6 +333,14 @@
       <joint>robotiq_arg2f_base_to_robotiq_140_right_inner_knuckle</joint>
       <joint>robotiq_140_joint_finger</joint>
     </plugin>
+  </gazebo>
+  <link name="world"/>
+  <joint name="world_to_robotiq_adapter" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="world"/>
+    <child link="robotiq_140_robotiq_arg2f_base_link"/>
+  </joint>
+  <gazebo>
     <plugin filename="libgazebo_ros_joint_state_publisher.so" name="robotiq_140_joint_state">
       <ros>
         <argument>~/out:=robotiq_140_joint_states</argument>
@@ -341,10 +349,4 @@
       <joint_name>robotiq_140_joint_finger</joint_name>
     </plugin>
   </gazebo>
-  <link name="world"/>
-  <joint name="world_to_robotiq_adapter" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.5"/>
-    <parent link="world"/>
-    <child link="robotiq_140_robotiq_arg2f_base_link"/>
-  </joint>
 </robot>
