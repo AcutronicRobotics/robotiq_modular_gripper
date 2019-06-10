@@ -28,6 +28,9 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo_ros/node.hpp>
 
+// Spline (interpolation)
+#include <robotiq_gripper_gazebo_plugins/spline.hpp>
+
 // HRIM
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/control_finger.hpp>
@@ -53,9 +56,11 @@ namespace gazebo
       std::vector<physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
+      double target_pose;
+      double target_velocity;
+
       unsigned int joint_type = (unsigned int)-1;
 
-      double target;
       double kp = 400.0;
       double ki = 1;
       double kd = 0.01;
@@ -63,6 +68,11 @@ namespace gazebo
       double imax = 0.0;
       double cmdmin = -10.0;
       double cmdmax = 10.0;
+
+      // Min and max joint speed values and radius for revolute joint based grippers.
+      double MinVelocity; // mm/s
+      double MaxVelocity; // mm/s
+      double radius; // mm
 
       void createTopicAndService(std::string node_name);
       void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
@@ -75,6 +85,14 @@ namespace gazebo
       ~RobotiqGripperPlugin();
 
       void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf);
+      void Reset();
+
+      // Interpolation
+      std::vector<float> interpolated_targetJoint;
+      double current_pose_rad = 0.0;
+      bool executing_joints;
+      unsigned int index_executing_joints;
+      double targetJoint  = 0.0;
   };
 }
 #endif

@@ -102,6 +102,8 @@
       <kp>500</kp>
       <ki>3</ki>
       <kd>9</kd>
+      <min_velocity>20</min_velocity>
+      <max_velocity>150</max_velocity>
       <joint>hande_joint_finger</joint>
       <joint>robotiq_hande_base_to_hande_right_finger</joint>
     </plugin>

@@ -20,7 +20,7 @@ def main(args=None):
         content = content_file.read()
 
     req = SpawnEntity.Request()
-    req.name = "robotiq85"
+    req.name = "robotiq_85"
     req.xml = content
     req.robot_namespace = ""
     req.reference_frame = "world"
