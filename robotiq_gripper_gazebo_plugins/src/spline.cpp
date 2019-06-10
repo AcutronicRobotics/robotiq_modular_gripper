@@ -1,4 +1,4 @@
-#include "mara_gazebo_plugins/spline.hpp"
+#include "robotiq_gripper_gazebo_plugins/spline.hpp"
 namespace tk
 {
   // band_matrix implementation
