@@ -70,8 +70,8 @@ namespace gazebo{
       auto joint_name = joint_elem->Get<std::string>();
       auto joint = model->GetJoint(joint_name);
 
-      if(joint_name == "joint_finger"){
-        this->joint_type = this->model->GetJoint("joint_finger")->GetType();
+      if(joint_name.find("joint_finger")){
+        this->joint_type = this->model->GetJoint(joint_name)->GetType();
       }
 
       if(!joint){
@@ -133,9 +133,6 @@ namespace gazebo{
       // revolute
       fingerstateMsg.linear_position = 0;
       fingerstateMsg.angular_position = jointsVec.front()->Position(0);
-    }
-    else{
-      RCLCPP_ERROR(node->get_logger(), "(fingerstate_msgs) joint_finger type not supported");
     }
     fingerstatePublisher->publish(fingerstateMsg);
   }
