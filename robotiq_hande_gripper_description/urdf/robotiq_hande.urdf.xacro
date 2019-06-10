@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="robotiq_hande"  params="prefix">
-    <link name="robotiq_hande_base_link">
+  <xacro:macro name="robotiq_hande"  params="prefix MAC">
+    <link name="${prefix}robotiq_hande_base_link">
       <inertial>
         <origin xyz="0 0 0.04607" rpy="0 0 0" />
         <mass value="0.86387" />
@@ -23,12 +23,12 @@
         </geometry>
       </collision>
     </link>
-    <gazebo reference="robotiq_hande_base_link">
+    <gazebo reference="${prefix}robotiq_hande_base_link">
       <material>Gazebo/Black</material>
       <selfCollide>True</selfCollide>
     </gazebo>
 
-    <link name="left_finger">
+    <link name="${prefix}left_finger">
       <inertial>
         <origin rpy="0 0 0" xyz="0.02262 -0.00759 0.00738"/>
         <mass value="0.03804"/>
@@ -50,12 +50,12 @@
         </geometry>
       </collision>
     </link>
-    <gazebo reference="left_finger">
+    <gazebo reference="${prefix}left_finger">
       <material>Gazebo/Grey</material>
       <selfCollide>True</selfCollide>
     </gazebo>
 
-    <link name="right_finger">
+    <link name="${prefix}right_finger">
       <inertial>
         <origin rpy="0 0 0" xyz="-0.02262 0.00759 0.00738"/>
         <mass value="0.03804"/>
@@ -77,44 +77,37 @@
         </geometry>
       </collision>
     </link>
-    <gazebo reference="right_finger">
+    <gazebo reference="${prefix}right_finger">
       <material>Gazebo/Grey</material>
       <selfCollide>True</selfCollide>
     </gazebo>
 
-    <joint name="joint_finger" type="prismatic">
+    <joint name="${prefix}joint_finger" type="prismatic">
       <origin rpy="0 0 0" xyz="0 0 0.099"/>
-      <parent link="robotiq_hande_base_link"/>
-      <child link="left_finger"/>
+      <parent link="${prefix}robotiq_hande_base_link"/>
+      <child link="${prefix}left_finger"/>
       <axis xyz="-1 0 0"/>
       <limit effort="130" lower="0" upper="0.025" velocity="0.15"/>
     </joint>
 
-    <joint name="robotiq_hande_base_to_right_finger" type="prismatic">
+    <joint name="robotiq_hande_base_to_${prefix}right_finger" type="prismatic">
       <origin rpy="0 0 0" xyz="0 0 0.099"/>
-      <parent link="robotiq_hande_base_link"/>
-      <child link="right_finger"/>
+      <parent link="${prefix}robotiq_hande_base_link"/>
+      <child link="${prefix}right_finger"/>
       <axis xyz="1 0 0"/>
       <limit effort="130" lower="0" upper="0.025" velocity="0.15"/>
-      <mimic joint="joint_finger" multiplier="1" offset="0"/>
+      <mimic joint="${prefix}joint_finger" multiplier="1" offset="0"/>
     </joint>
 
     <gazebo>
-      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuation_gripper_000000000004">
+      <plugin filename="librobotiq_gripper_gazebo_plugin.so" name="hrim_actuator_gripper${MAC}">
         <kp>500</kp>
         <ki>3</ki>
         <kd>9</kd>
-        <joint>joint_finger</joint>
-        <joint>robotiq_hande_base_to_right_finger</joint>
         <min_velocity>20</min_velocity>
         <max_velocity>150</max_velocity>
-      </plugin>
-      <plugin filename="libgazebo_ros_joint_state_publisher.so" name="mara_joint_state">
-        <ros>
-          <argument>~/out:=joint_states</argument>
-        </ros>
-        <update_rate>25</update_rate>
-        <joint_name>joint_finger</joint_name>
+        <joint>${prefix}joint_finger</joint>
+        <joint>robotiq_hande_base_to_${prefix}right_finger</joint>
       </plugin>
     </gazebo>
   </xacro:macro>
