@@ -92,7 +92,7 @@ Create a ROS workspace, for example:
 mkdir -p ~/ros2_mara_ws/src
 cd ~/ros2_mara_ws
 sudo apt install -y python3-vcstool python3-numpy
-wget https://raw.githubusercontent.com/acutronicrobotics/MARA/master/mara-ros2.repos
+wget https://raw.githubusercontent.com/acutronicrobotics/MARA/dashing/mara-ros2.repos
 vcs import src < mara-ros2.repos
 ```
 
@@ -109,7 +109,7 @@ python3 hrim.py generate models/actuator/gripper/gripper.xml
 Right now you can compile the code:
 
 ```sh
-source /opt/ros/crystal/setup.bash
+source /opt/ros/dashing/setup.bash
 cd ~/ros2_mara_ws && colcon build --merge-install --packages-skip individual_trajectories_bridge
 ```
 
