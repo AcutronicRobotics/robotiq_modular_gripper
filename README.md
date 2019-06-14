@@ -109,7 +109,7 @@ python3 hrim.py generate models/actuator/gripper/gripper.xml
 Right now you can compile the code:
 
 ```sh
-source /opt/ros/crystal/setup.bash
+source /opt/ros/dashing/setup.bash
 cd ~/ros2_mara_ws && colcon build --merge-install --packages-skip individual_trajectories_bridge
 ```
 
