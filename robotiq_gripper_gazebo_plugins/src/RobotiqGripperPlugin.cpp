@@ -194,7 +194,7 @@ namespace gazebo{
 
     std::string fingerstate = std::string(node_name) + "/fingerstate";
     RCLCPP_INFO(node->get_logger(), "creating %s publisher ", fingerstate.c_str());
-    fingerstatePublisher = node->create_publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>(fingerstate, rmw_qos_profile_default);
+    fingerstatePublisher = node->create_publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>(fingerstate, rclcpp::SensorDataQoS());
 
     timer_fingerstate = node->create_wall_timer(100ms, std::bind(&RobotiqGripperPlugin::timer_fingerstate_msgs, this));
 
