@@ -56,6 +56,7 @@ namespace gazebo
       std::vector<physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
+      double upper_limit;
       double target_pose;
       double target_velocity;
 

@@ -18,8 +18,6 @@ namespace gazebo{
       (void)request_header;
 
       // Pose control
-      double upper_limit = jointsVec[0]->UpperLimit(0);
-
       if((int)this->joint_type == 1088){ // prismatic
         target_pose = request->goal_linearposition;
       }
@@ -144,8 +142,9 @@ namespace gazebo{
       auto joint_name = joint_elem->Get<std::string>();
       auto joint = model->GetJoint(joint_name);
 
-      if(joint_name.find("joint_finger")){
+      if(joint_name.find("joint_finger") != std::string::npos){
         this->joint_type = this->model->GetJoint(joint_name)->GetType();
+        upper_limit = joint->UpperLimit(0);
       }
 
       if(!joint){
