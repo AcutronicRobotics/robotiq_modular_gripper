@@ -8,13 +8,20 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
   # we dont use add_compile_options with pedantic in message packages
   # because the Python C extensions dont comply with it
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -fpermissive -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+  -Wall -Wextra -Wpedantic
+  -fpermissive -Wno-unused-parameter"
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # we dont use add_compile_options with pedantic in message packages
   # because the Python C extensions dont comply with it
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -fpermissive -Wno-unused-parameter -Wno-header-guard -Wstatic-float-init")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+  -Wall -Wextra -Wpedantic
+  -fpermissive -Wno-unused-parameter
+  -Wno-header-guard -Wstatic-float-init"
+  )
 endif()
 
 find_package(ament_cmake REQUIRED)
