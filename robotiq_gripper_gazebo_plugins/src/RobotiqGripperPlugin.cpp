@@ -178,7 +178,8 @@ namespace gazebo{
     executing_joints = false;
     index_executing_joints = 0;
 
-    this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin( boost::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
+    this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(
+      std::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
 
     UpdateJointPIDs();
 

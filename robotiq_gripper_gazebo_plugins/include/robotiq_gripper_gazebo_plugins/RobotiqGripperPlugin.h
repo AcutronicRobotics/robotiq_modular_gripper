@@ -35,8 +35,6 @@
 #include <hrim_actuator_gripper_msgs/msg/state_finger_gripper.hpp>
 #include <hrim_actuator_gripper_srvs/srv/control_finger.hpp>
 
-#include <boost/bind.hpp>
-
 using namespace std::chrono_literals;
 
 namespace gazebo
