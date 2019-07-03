@@ -181,6 +181,8 @@ namespace gazebo{
     this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin( boost::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
 
     UpdateJointPIDs();
+
+    std::cout.flush();
   }
 
   void RobotiqGripperPlugin::Reset()
