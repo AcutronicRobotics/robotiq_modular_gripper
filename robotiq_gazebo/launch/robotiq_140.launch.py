@@ -34,7 +34,7 @@ def generate_launch_description():
 
     ld = LaunchDescription([
         ExecuteProcess(
-            cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so'], output='screen',
+            cmd=['gazebo', '-s', 'libgazebo_ros_factory.so'], output='screen',
             env=envs
         ),
         Node(package='robot_state_publisher', node_executable='robot_state_publisher', output='screen', arguments=[urdf]),
