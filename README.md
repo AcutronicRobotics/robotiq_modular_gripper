@@ -2,6 +2,7 @@
 
  - [Install](#install)
  - [Launch](#launch)
+ - [Usage](#usage)
 
 ## Industrial and modular end-of-arm tooling
 
@@ -132,3 +133,14 @@ ros2 launch robotiq_gazebo robotiq_140.launch.py
 ```
 ros2 launch robotiq_gazebo robotiq_hande.launch.py
 ```
+
+# Usage
+
+Service call example:
+```
+ros2 service call /hrim_actuator_gripper_000000000004/fingercontrol hrim_actuator_gripper_srvs/ControlFinger "{goal_angularposition: 0.0, goal_velocity: 70.0}"
+```
+
+Detailed instructions available at [AcutronicRobotics/docs](https://acutronicrobotics.com/docs).
+
+<!-- TODO, Link to exact DH gripper page to docs -->
