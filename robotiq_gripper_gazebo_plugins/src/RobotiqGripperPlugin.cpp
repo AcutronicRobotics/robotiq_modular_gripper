@@ -21,10 +21,10 @@ namespace gazebo_plugins{
       // Pose control
       double upper_limit = jointsVec[0]->UpperLimit(0);
 
-      if((int)this->joint_type == 1088){ // prismatic
+      if((int)joint_type == 1088){ // prismatic
         target_pose = request->goal_linearposition;
       }
-      else if((int)this->joint_type == 576){ // revolute
+      else if((int)joint_type == 576){ // revolute
         target_pose = request->goal_angularposition;
       }
       else{
@@ -43,7 +43,7 @@ namespace gazebo_plugins{
       target_pose = upper_limit - target_pose;
 
       // Speed control
-      if((int)this->joint_type == 1088){ // prismatic (e.g. S50 gripper)
+      if((int)joint_type == 1088){ // prismatic (e.g. S50 gripper)
         if (request->goal_velocity >= MinVelocity && request->goal_velocity <= MaxVelocity){
           target_velocity = request->goal_velocity;
         }else if (request->goal_velocity < MinVelocity){
@@ -55,7 +55,7 @@ namespace gazebo_plugins{
         }
         target_velocity *= 0.001; // to m/s
       }
-      else if((int)this->joint_type == 576){ // revolute (e.g. S140 and S85 grippers)
+      else if((int)joint_type == 576){ // revolute (e.g. S140 and S85 grippers)
         if (request->goal_velocity >= MinVelocity && request->goal_velocity <= MaxVelocity){
           target_velocity = request->goal_velocity / radius;
         }else if (request->goal_velocity < MinVelocity){
@@ -67,7 +67,7 @@ namespace gazebo_plugins{
         }
       }
 
-      double current_pose = this->model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
+      double current_pose = model->GetJointController()->GetPositions().begin()->second; //Taking first joint for reference only, this should be improved
       double start_time = 0;
       // ATTENTION! Same formula is used for both angular and linear movement grippers. Meaning the values in the formula sometimes contain radians, other times meters.
       double end_time = fabs(current_pose - target_pose) / target_velocity;
@@ -91,9 +91,9 @@ namespace gazebo_plugins{
     }
   }
 
-  void RobotiqGripperPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf){
-    impl_->model = parent;
-    impl_->sdf = sdf;
+  void RobotiqGripperPlugin::Load(gazebo::physics::ModelPtr _model, sdf::ElementPtr _sdf){
+    impl_->model = _model;
+    impl_->sdf = _sdf;
 
     if (!impl_->model){
       gzerr<< "Parent model is NULL! RobotiqGripperPlugin could not be loaded."<< std::endl;
@@ -250,8 +250,8 @@ namespace gazebo_plugins{
   }
 
   void RobotiqGripperPluginPrivate::UpdateJointPIDs(){
-    for(auto &joint : this->jointsVec)
-      this->model->GetJointController()->SetPositionPID(joint->GetScopedName(),
+    for(auto &joint : jointsVec)
+      model->GetJointController()->SetPositionPID(joint->GetScopedName(),
         gazebo::common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
   }
 
@@ -269,8 +269,8 @@ namespace gazebo_plugins{
         index_executing_joints = 0;
       }
     }
-    for(auto &joint : this->jointsVec)
-      this->model->GetJointController()->SetPositionTarget(joint->GetScopedName(),
+    for(auto &joint : jointsVec)
+      model->GetJointController()->SetPositionTarget(joint->GetScopedName(),
         targetJoint * joint_multipliers_[joint->GetScopedName()]);
   }
 
