@@ -216,9 +216,6 @@ namespace gazebo_plugins{
   }
 
   void RobotiqGripperPluginPrivate::timer_fingerstate_msgs(){
-
-    std::cout << "TIMER MSG STATE 0" << std::endl;
-
     hrim_actuator_gripper_msgs::msg::StateFingerGripper fingerstateMsg;
     gazebo::common::Time cur_time = model->GetWorld()->SimTime();
     fingerstateMsg.header.stamp.sec = cur_time.sec;
@@ -233,20 +230,8 @@ namespace gazebo_plugins{
       // revolute
       fingerstateMsg.linear_position = 0;
       fingerstateMsg.angular_position = jointsVec.front()->Position(0);
-    }else{
-      std::cout << "WHAT???" << std::endl;
-
     }
-
-    std::cout << "TIMER MSG STATE" << std::endl;
-    std::cout << fingerstateMsg.header.stamp.sec << std::endl;
-    std::cout << fingerstateMsg.header.stamp.nanosec << std::endl;
-    std::cout << fingerstateMsg.linear_position << std::endl;
-    std::cout << fingerstateMsg.angular_position << std::endl;
-
     fingerstatePublisher->publish(fingerstateMsg);
-    std::cout << "PUBLISHED" << std::endl;
-    std::cout.flush();
   }
 
   void RobotiqGripperPluginPrivate::UpdateJointPIDs(){
