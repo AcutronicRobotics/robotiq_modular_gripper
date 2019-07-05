@@ -1,19 +1,20 @@
-#include <string>
-#include <vector>
-
 #include "robotiq_gripper_gazebo_plugins/RobotiqGripperPlugin.h"
 
-namespace gazebo{
-  RobotiqGripperPlugin::RobotiqGripperPlugin(){
+namespace gazebo_plugins{
+  RobotiqGripperPlugin::RobotiqGripperPlugin()
+  : impl_(std::make_unique<RobotiqGripperPluginPrivate>())
+  {
     printf("RobotiqGripperPlugin\n");
   }
 
   RobotiqGripperPlugin::~RobotiqGripperPlugin(){
   }
 
-  void RobotiqGripperPlugin::gripper_service(const std::shared_ptr<rmw_request_id_t> request_header,
-                                             const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
-                                             std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response){
+  void RobotiqGripperPluginPrivate::gripper_service(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
+    std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response)
+  {
     if(!executing_joints){
       (void)request_header;
 
@@ -27,15 +28,15 @@ namespace gazebo{
         target_pose = request->goal_angularposition;
       }
       else{
-        RCLCPP_ERROR(node->get_logger(), "joint_finger type not supported");
+        RCLCPP_ERROR(ros_node->get_logger(), "joint_finger type not supported");
       }
 
       if(target_pose < 0.0){
         target_pose = 0.0;
-        RCLCPP_INFO(node->get_logger(), "goal changed to its minimum value: 0.0");
+        RCLCPP_INFO(ros_node->get_logger(), "goal changed to its minimum value: 0.0");
       }else if(target_pose > upper_limit){
         target_pose = upper_limit;
-        RCLCPP_INFO(node->get_logger(), "goal changed to its maximum value: %lf", upper_limit);
+        RCLCPP_INFO(ros_node->get_logger(), "goal changed to its maximum value: %lf", upper_limit);
       }
 
       // Invert pose meaning
@@ -47,10 +48,10 @@ namespace gazebo{
           target_velocity = request->goal_velocity;
         }else if (request->goal_velocity < MinVelocity){
           target_velocity = MinVelocity;
-          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
+          RCLCPP_INFO(ros_node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
         }else if (request->goal_velocity > MaxVelocity){
           target_velocity = MaxVelocity;
-          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
+          RCLCPP_INFO(ros_node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
         }
         target_velocity *= 0.001; // to m/s
       }
@@ -59,10 +60,10 @@ namespace gazebo{
           target_velocity = request->goal_velocity / radius;
         }else if (request->goal_velocity < MinVelocity){
           target_velocity = MinVelocity / radius;
-          RCLCPP_INFO(node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
+          RCLCPP_INFO(ros_node->get_logger(), "Minimum value exceeded, target velocity changed to its minimum value: %lf mm/s", MinVelocity);
         }else if (request->goal_velocity > MaxVelocity){
           target_velocity = MaxVelocity / radius;
-          RCLCPP_INFO(node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
+          RCLCPP_INFO(ros_node->get_logger(), "maximum value exceeded, target velocity changed to its maximum value: %lf mm/s", MaxVelocity);
         }
       }
 
@@ -91,61 +92,59 @@ namespace gazebo{
   }
 
   void RobotiqGripperPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf){
-    this->model = parent;
-    this->sdf = sdf;
+    impl_->model = parent;
+    impl_->sdf = sdf;
 
-    if (!this->model){
+    if (!impl_->model){
       gzerr<< "Parent model is NULL! RobotiqGripperPlugin could not be loaded."<< std::endl;
       return;
     }
 
     std::string robot_namespace_ = "";
-    if(this->sdf->HasElement("robotNamespace"))
-       robot_namespace_ = this->sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
+    if(impl_->sdf->HasElement("robotNamespace"))
+       robot_namespace_ = impl_->sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
     else
       printf("No robotNamespace\n");
 
-    node = gazebo_ros::Node::Get(this->sdf);
-    std::string node_name = this->sdf->Get<std::string>("name");
-    RCLCPP_INFO(node->get_logger(), "name of the gripper node is %s\n", node_name.c_str());
+    impl_->ros_node = gazebo_ros::Node::Get(impl_->sdf);
+    std::string node_name = impl_->sdf->Get<std::string>("name");
+    RCLCPP_INFO(impl_->ros_node->get_logger(), "name of the gripper node is %s\n", node_name.c_str());
 
-    createTopicAndService(node_name);
-
-    if(this->sdf->HasElement("kp"))
-      this->kp = this->sdf->GetElement("kp")->Get<double>();
-    if(this->sdf->HasElement("ki"))
-      this->ki = this->sdf->GetElement("ki")->Get<double>();
-    if(this->sdf->HasElement("kd"))
-      this->kd = this->sdf->GetElement("kd")->Get<double>();
+    if(impl_->sdf->HasElement("kp"))
+      impl_->kp = impl_->sdf->GetElement("kp")->Get<double>();
+    if(impl_->sdf->HasElement("ki"))
+      impl_->ki = impl_->sdf->GetElement("ki")->Get<double>();
+    if(impl_->sdf->HasElement("kd"))
+      impl_->kd = impl_->sdf->GetElement("kd")->Get<double>();
 
     // velocity related tags
-    if(this->sdf->HasElement("min_velocity")){
-      this->MinVelocity = this->sdf->GetElement("min_velocity")->Get<double>();
+    if(impl_->sdf->HasElement("min_velocity")){
+      impl_->MinVelocity = impl_->sdf->GetElement("min_velocity")->Get<double>();
     }else{
-      RCLCPP_ERROR(node->get_logger(), "No min_velocity element.");
-      node.reset();
+      RCLCPP_ERROR(impl_->ros_node->get_logger(), "No min_velocity element.");
+      impl_->ros_node.reset();
       return;
     }
-    if(this->sdf->HasElement("max_velocity")){
-      this->MaxVelocity = this->sdf->GetElement("max_velocity")->Get<double>();
+    if(impl_->sdf->HasElement("max_velocity")){
+      impl_->MaxVelocity = impl_->sdf->GetElement("max_velocity")->Get<double>();
     }else{
-      RCLCPP_ERROR(node->get_logger(), "No max_velocity element.");
-      node.reset();
+      RCLCPP_ERROR(impl_->ros_node->get_logger(), "No max_velocity element.");
+      impl_->ros_node.reset();
       return;
     }
-    if(this->sdf->HasElement("radius")){
-      this->radius = this->sdf->GetElement("radius")->Get<double>();
+    if(impl_->sdf->HasElement("radius")){
+      impl_->radius = impl_->sdf->GetElement("radius")->Get<double>();
     }else{
-      RCLCPP_INFO(node->get_logger(), "No radius element found. Angular movement radius must be set for grippers with revolute joints.");
+      RCLCPP_INFO(impl_->ros_node->get_logger(), "No radius element found. Angular movement radius must be set for grippers with revolute joints.");
     }
 
-    sdf::ElementPtr joint_elem = this->sdf->GetElement("joint");
+    sdf::ElementPtr joint_elem = impl_->sdf->GetElement("joint");
     while(joint_elem){
       auto joint_name = joint_elem->Get<std::string>();
-      auto joint = model->GetJoint(joint_name);
+      auto joint = impl_->model->GetJoint(joint_name);
 
       if(joint_name.find("joint_finger")){
-        this->joint_type = this->model->GetJoint(joint_name)->GetType();
+        impl_->joint_type = impl_->model->GetJoint(joint_name)->GetType();
       }
 
       if(!joint){
@@ -153,89 +152,110 @@ namespace gazebo{
       }
       else{
         if(joint_elem->HasAttribute("multiplier"))
-          joint_multipliers_[joint->GetScopedName()] = std::stod(joint_elem->GetAttribute("multiplier")->GetAsString());
+          impl_->joint_multipliers_[joint->GetScopedName()] = std::stod(joint_elem->GetAttribute("multiplier")->GetAsString());
         else
-          joint_multipliers_[joint->GetScopedName()] = 1;
-        jointsVec.push_back(joint);
+          impl_->joint_multipliers_[joint->GetScopedName()] = 1;
+        impl_->jointsVec.push_back(joint);
       }
       joint_elem = joint_elem->GetNextElement("joint");
     }
 
-    if((int)this->joint_type == -1){
-      RCLCPP_ERROR(node->get_logger(), "joint_finger is missing, the gripper will not work");
+    if((int)impl_->joint_type == -1){
+      RCLCPP_ERROR(impl_->ros_node->get_logger(), "joint_finger is missing, the gripper will not work");
     }
 
-    if(jointsVec.empty()){
-      RCLCPP_ERROR(node->get_logger(), "No joints found.");
-      node.reset();
+    if(impl_->jointsVec.empty()){
+      RCLCPP_ERROR(impl_->ros_node->get_logger(), "No joints found.");
+      impl_->ros_node.reset();
       return;
     }
     else{
-      targetJoint = 0;
+      impl_->targetJoint = 0;
     }
 
-    interpolated_targetJoint.clear();
-    executing_joints = false;
-    index_executing_joints = 0;
+    impl_->interpolated_targetJoint.clear();
+    impl_->executing_joints = false;
+    impl_->index_executing_joints = 0;
 
-    this->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(
-      std::bind(&RobotiqGripperPlugin::UpdatePIDControl, this));
+    // Create ROS2 gripper state publisher with timer + Finger Control subscription service.
+    createTopicAndService(node_name);
 
-    UpdateJointPIDs();
+    // Listen to the update event (broadcast every simulation iteration)
+    impl_->updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(
+      std::bind(&RobotiqGripperPluginPrivate::UpdatePIDControl, impl_.get()));
+
+    impl_->UpdateJointPIDs();
 
     std::cout.flush();
   }
 
   void RobotiqGripperPlugin::Reset()
   {
-    interpolated_targetJoint.clear();
-    targetJoint = 0;
-    executing_joints = false;
+    impl_->interpolated_targetJoint.clear();
+    impl_->targetJoint = 0;
+    impl_->executing_joints = false;
   }
 
   void RobotiqGripperPlugin::createTopicAndService(std::string node_name){
 
     std::string fingerstate = std::string(node_name) + "/fingerstate";
-    RCLCPP_INFO(node->get_logger(), "creating %s publisher ", fingerstate.c_str());
-    fingerstatePublisher = node->create_publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>(fingerstate, rclcpp::SensorDataQoS());
+    RCLCPP_INFO(impl_->ros_node->get_logger(), "creating %s publisher ", fingerstate.c_str());
+    impl_->fingerstatePublisher = impl_->ros_node->create_publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>(
+      fingerstate, rclcpp::QoS(1));
 
-    timer_fingerstate = node->create_wall_timer(100ms, std::bind(&RobotiqGripperPlugin::timer_fingerstate_msgs, this));
+    impl_->timer_fingerstate = impl_->ros_node->create_wall_timer(
+      1s, std::bind(&RobotiqGripperPluginPrivate::timer_fingerstate_msgs, impl_.get()));
 
     std::string fingercontrol = std::string(node_name) + "/fingercontrol";
-    RCUTILS_LOG_INFO_NAMED(node->get_name(), "creating %s service ", fingercontrol.c_str());
+    RCUTILS_LOG_INFO_NAMED(impl_->ros_node->get_name(), "creating %s service ", fingercontrol.c_str());
     std::function<void(std::shared_ptr<rmw_request_id_t>,
                        const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request>,
-                       std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = \
-                       std::bind(&RobotiqGripperPlugin::gripper_service, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-    fingercontrolService = node->create_service<hrim_actuator_gripper_srvs::srv::ControlFinger>(fingercontrol, cb_fingercontrol_function);
+                       std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response>)> cb_fingercontrol_function = std::bind(
+                       &RobotiqGripperPluginPrivate::gripper_service, impl_.get(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    impl_->fingercontrolService = impl_->ros_node->create_service<hrim_actuator_gripper_srvs::srv::ControlFinger>(fingercontrol, cb_fingercontrol_function);
   }
 
-  void RobotiqGripperPlugin::timer_fingerstate_msgs(){
+  void RobotiqGripperPluginPrivate::timer_fingerstate_msgs(){
+
+    std::cout << "TIMER MSG STATE 0" << std::endl;
+
     hrim_actuator_gripper_msgs::msg::StateFingerGripper fingerstateMsg;
-    gazebo::common::Time cur_time = this->model->GetWorld()->SimTime();
+    gazebo::common::Time cur_time = model->GetWorld()->SimTime();
     fingerstateMsg.header.stamp.sec = cur_time.sec;
     fingerstateMsg.header.stamp.nanosec = cur_time.nsec;
 
-    if((int)this->joint_type == 1088){
+    if((int)joint_type == 1088){
       // prismatic
       fingerstateMsg.linear_position = jointsVec.front()->Position(0);
       fingerstateMsg.angular_position = 0;
     }
-    else if((int)this->joint_type == 576){
+    else if((int)joint_type == 576){
       // revolute
       fingerstateMsg.linear_position = 0;
       fingerstateMsg.angular_position = jointsVec.front()->Position(0);
+    }else{
+      std::cout << "WHAT???" << std::endl;
+
     }
+
+    std::cout << "TIMER MSG STATE" << std::endl;
+    std::cout << fingerstateMsg.header.stamp.sec << std::endl;
+    std::cout << fingerstateMsg.header.stamp.nanosec << std::endl;
+    std::cout << fingerstateMsg.linear_position << std::endl;
+    std::cout << fingerstateMsg.angular_position << std::endl;
+
     fingerstatePublisher->publish(fingerstateMsg);
+    std::cout << "PUBLISHED" << std::endl;
+    std::cout.flush();
   }
 
-  void RobotiqGripperPlugin::UpdateJointPIDs(){
+  void RobotiqGripperPluginPrivate::UpdateJointPIDs(){
     for(auto &joint : this->jointsVec)
       this->model->GetJointController()->SetPositionPID(joint->GetScopedName(),
-        common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
+        gazebo::common::PID(kp, ki, kd, imax, imin, joint->LowerLimit(0), joint->UpperLimit(0)));
   }
 
-  void RobotiqGripperPlugin::UpdatePIDControl(){
+  void RobotiqGripperPluginPrivate::UpdatePIDControl(){
     if(!executing_joints && interpolated_targetJoint.size()>0){
       index_executing_joints = 0;
       executing_joints = true;

@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 // Gazebo
 #include <gazebo/common/Plugin.hh>
@@ -37,21 +38,21 @@
 
 using namespace std::chrono_literals;
 
-namespace gazebo
+namespace gazebo_plugins
   {
-  class RobotiqGripperPlugin : public gazebo::ModelPlugin
+  class RobotiqGripperPluginPrivate
   {
-    private:
+    public:
       sdf::ElementPtr sdf;
       gazebo::physics::ModelPtr model;
-      gazebo_ros::Node::SharedPtr node;
+      gazebo_ros::Node::SharedPtr ros_node;
       gazebo::event::ConnectionPtr updateConnection;
 
       std::shared_ptr<rclcpp::Publisher<hrim_actuator_gripper_msgs::msg::StateFingerGripper>> fingerstatePublisher;
       std::shared_ptr<rclcpp::TimerBase> timer_fingerstate;
       rclcpp::Service<hrim_actuator_gripper_srvs::srv::ControlFinger>::SharedPtr fingercontrolService;
 
-      std::vector<physics::JointPtr> jointsVec;
+      std::vector<gazebo::physics::JointPtr> jointsVec;
       std::map<std::string, double> joint_multipliers_;
 
       double target_pose;
@@ -72,18 +73,13 @@ namespace gazebo
       double MaxVelocity; // mm/s
       double radius; // mm
 
-      void createTopicAndService(std::string node_name);
-      void gripper_service(const std::shared_ptr<rmw_request_id_t> request_header, const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request, std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
+      void gripper_service(
+        const std::shared_ptr<rmw_request_id_t> request_header,
+        const std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Request> request,
+        std::shared_ptr<hrim_actuator_gripper_srvs::srv::ControlFinger::Response> response);
       void timer_fingerstate_msgs();
       void UpdatePIDControl();
       void UpdateJointPIDs();
-
-    public:
-      RobotiqGripperPlugin();
-      ~RobotiqGripperPlugin();
-
-      void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf);
-      void Reset();
 
       // Interpolation
       std::vector<float> interpolated_targetJoint;
@@ -92,5 +88,29 @@ namespace gazebo
       unsigned int index_executing_joints;
       double targetJoint  = 0.0;
   };
+
+  class RobotiqGripperPlugin : public gazebo::ModelPlugin
+  {
+  public:
+    /// Constructor
+    RobotiqGripperPlugin();
+
+    /// Destructor
+    ~RobotiqGripperPlugin();
+
+    void createTopicAndService(std::string node_name);
+
+  protected:
+    // Documentation inherited
+    void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf) override;
+
+    // Documentation inherited
+    void Reset() override;
+
+  private:
+    /// Private data pointer
+    std::unique_ptr<RobotiqGripperPluginPrivate> impl_;
+  };
+
 }
 #endif
